@@ -63,7 +63,7 @@ public class Logic implements IGameHandler {
 					// Zug auf Salatfeld
 					return new RatedMove(move, 4);
 				} else {
-					// Ziehe Vorw√§rts, wenn m√∂glich
+					// Ziehe Vorw‰rts, wenn mˆglich
 					return new RatedMove(move, 0);
 				}
 			} else if (action instanceof Card) {
@@ -71,8 +71,8 @@ public class Logic implements IGameHandler {
 				if (card.getType() == CardType.EAT_SALAD) {
 					// Zug auf Hasenfeld und danch Salatkarte
 					return new RatedMove(move, 4);
-				} // Muss nicht zus√§tzlich ausgew√§hlt werden, wurde schon durch Advance
-					// ausgew√§hlt
+				} // Muss nicht zus‰tzlich ausgew‰hlt werden, wurde schon durch Advance
+					// ausgew‰hlt
 			} else if (action instanceof ExchangeCarrots) {
 				ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
 				if (exchangeCarrots.getValue() == 10 && currentPlayer.getCarrots() < 30
@@ -88,17 +88,17 @@ public class Logic implements IGameHandler {
 				}
 			} else if (action instanceof FallBack) {
 				if (currentPlayer.getFieldIndex() > 56 /* letztes Salatfeld */ && currentPlayer.getSalads() > 0) {
-					// Falle nur am Ende (currentPlayer.getFieldIndex() > 56) zur√ºck, au√üer du
+					// Falle nur am Ende (currentPlayer.getFieldIndex() > 56) zur¸ck, auﬂer du
 					// musst noch einen Salat
 					// loswerden
 					return new RatedMove(move, 3);
 				} else if (currentPlayer.getFieldIndex() <= 56 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
-					// Falle zur√ºck, falls sich R√ºckzug lohnt (nicht zu viele Karotten aufnehmen)
+					// Falle zur¸ck, falls sich R¸ckzug lohnt (nicht zu viele Karotten aufnehmen)
 					return new RatedMove(move, -1);
 				}
 			} else {
-				// F√ºge Salatessen oder Skip hinzu
+				// F√¸e Salatessen oder Skip hinzu
 				return new RatedMove(move, -1);
 			}
 		}
@@ -119,17 +119,6 @@ public class Logic implements IGameHandler {
 			ratedMoves.add(getRatedMove(move));
 		}
 		RatedMove selectedMove = new RatedMove();
-		/*
-		 * if (!winningMoves.isEmpty()) { log.info("Sende Gewinnzug"); move =
-		 * winningMoves.get(rand.nextInt(winningMoves.size())); } else if
-		 * (!saladMoves.isEmpty()) { // es gibt die M√∂glichkeit einen Salat zu essen
-		 * log.info("Sende Zug zum Salatessen"); move =
-		 * saladMoves.get(rand.nextInt(saladMoves.size())); } else if
-		 * (!selectedMoves.isEmpty()) { log.info("Sende ausgew√§hlten Zug"); move =
-		 * selectedMoves.get(rand.nextInt(selectedMoves.size())); } else {
-		 * log.info("Sende irgendeinen Zug"); move =
-		 * possibleMoves.get(rand.nextInt(possibleMoves.size())); }
-		 */
 		if (ratedMoves.size() < 1) {
 			selectedMove = new RatedMove(possibleMoves.get(rand.nextInt(possibleMoves.size())));
 		} else {

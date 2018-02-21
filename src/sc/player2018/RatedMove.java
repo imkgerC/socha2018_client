@@ -1,7 +1,5 @@
 package sc.player2018;
 
-import java.util.List;
-
 public class RatedMove extends sc.plugin2018.Move {
 	int rating;
 	

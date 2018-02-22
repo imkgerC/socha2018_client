@@ -13,6 +13,8 @@ import sc.plugin2018.*;
 import sc.plugin2018.util.Constants;
 import sc.shared.PlayerColor;
 import sc.shared.GameResult;
+import sc.shared.InvalidGameStateException;
+import sc.shared.InvalidMoveException;
 
 /**
  * Logic of the simple client we are building
@@ -48,6 +50,38 @@ public class Logic implements IGameHandler {
 		log.info("Das Spiel ist beendet.");
 	}
 
+	public int getMoveRating(Move move, GameState gamestate) {
+		GameState gamestate_clone;
+		try {
+			gamestate_clone = gamestate.clone();
+		} catch (CloneNotSupportedException e1) {
+			// wtf, let's just ignore this
+			return 0;
+		}
+		try {
+			move.perform(gamestate_clone);
+		} catch (InvalidMoveException e) {
+			// Move is not valid, do not perform, disqualifies us.
+			return Integer.MIN_VALUE;
+		} catch (InvalidGameStateException e) {
+			// wtf, let's just ignore this but better not perform this move
+			return Integer.MIN_VALUE;
+		}
+		for(Move nextMove:gamestate_clone.getPossibleMoves()) {
+			// check if the enemy can win for one of the moves that he can do afterwards
+			for(Action action: nextMove.getActions()) {
+				if(action instanceof Advance) {
+					Advance advance = (Advance) action;
+					if(advance.getDistance() + gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS - 1) {
+						// if the enemy can win after our move, we shouldn't perform this
+						return Integer.MIN_VALUE;
+					}
+				}
+			}
+		}
+		return 0;
+	}
+	
 	public RatedMove getRatedMove(Move move) {
 		for (Action action : move.actions) {
 			if (action instanceof Advance) {
@@ -62,7 +96,7 @@ public class Logic implements IGameHandler {
 					return new RatedMove(move, 4);
 				} else {
 					// Ziehe Vorwärts, wenn möglich
-					return new RatedMove(move, 0);
+					return new RatedMove(move, this.getMoveRating(move, gameState));
 				}
 			} else if (action instanceof Card) {
 				Card card = (Card) action;
@@ -78,11 +112,11 @@ public class Logic implements IGameHandler {
 						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
 					// Nehme nur Karotten auf, wenn weniger als 30 und nur am Anfang und nicht zwei
 					// mal hintereinander
-					return new RatedMove(move, 0);
+					return new RatedMove(move, this.getMoveRating(move, gameState));
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30
 						&& currentPlayer.getFieldIndex() >= 40) {
 					// abgeben von Karotten ist nur am Ende sinnvoll
-					return new RatedMove(move, 0);
+					return new RatedMove(move, this.getMoveRating(move, gameState));
 				}
 			} else if (action instanceof FallBack) {
 				if (currentPlayer.getFieldIndex() > 56 /* letztes Salatfeld */ && currentPlayer.getSalads() > 0) {
@@ -93,11 +127,11 @@ public class Logic implements IGameHandler {
 				} else if (currentPlayer.getFieldIndex() <= 56 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
 					// Falle zurück, falls sich Rückzug lohnt (nicht zu viele Karotten aufnehmen)
-					return new RatedMove(move, -1);
+					return new RatedMove(move, this.getMoveRating(move, gameState)-1);
 				}
 			} else {
 				// FÃüe Salatessen oder Skip hinzu
-				return new RatedMove(move, -1);
+				return new RatedMove(move, this.getMoveRating(move, gameState)-1);
 			}
 		}
 		return new RatedMove(move,Integer.MIN_VALUE);

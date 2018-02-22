@@ -1,0 +1,217 @@
+14:49:24 INFO  sc.TestClient - loading server.properties
+14:49:24 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:49:24 INFO  sc.TestClient - Authenticate as administrator
+14:49:24 INFO  sc.TestClient - Enabling TestMode
+14:49:24 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:49:24 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:49:24 INFO  sc.TestClient - Received packet I am not interested in
+14:49:24 INFO  sc.TestClient - Trying to start clients
+14:49:24 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:49:24 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:49:24 INFO  sc.TestClient - Received packet I am not interested in
+14:49:45 INFO  sc.TestClient - loading server.properties
+14:49:45 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:49:45 INFO  sc.TestClient - Authenticate as administrator
+14:49:45 INFO  sc.TestClient - Enabling TestMode
+14:49:45 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:49:45 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:49:45 INFO  sc.TestClient - Received packet I am not interested in
+14:49:45 INFO  sc.TestClient - Trying to start clients
+14:49:45 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:49:45 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:49:45 INFO  sc.TestClient - Received packet I am not interested in
+14:50:23 INFO  sc.TestClient - loading server.properties
+14:50:23 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:50:23 INFO  sc.TestClient - Authenticate as administrator
+14:50:23 INFO  sc.TestClient - Enabling TestMode
+14:50:23 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:50:23 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:50:23 INFO  sc.TestClient - Received packet I am not interested in
+14:50:23 INFO  sc.TestClient - Trying to start clients
+14:50:23 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:50:23 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:50:23 INFO  sc.TestClient - Received packet I am not interested in
+14:50:42 INFO  sc.TestClient - loading server.properties
+14:50:42 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:50:42 INFO  sc.TestClient - Authenticate as administrator
+14:50:42 INFO  sc.TestClient - Enabling TestMode
+14:50:42 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:50:42 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:50:42 INFO  sc.TestClient - Received packet I am not interested in
+14:50:42 INFO  sc.TestClient - Trying to start clients
+14:50:42 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:50:42 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:50:42 INFO  sc.TestClient - Received packet I am not interested in
+14:50:53 WARN  sc.TestClient - Received game result
+14:50:53 INFO  sc.TestClient - Received packet I am not interested in
+14:50:53 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 104, ? Feldnummer 11.256854, ? Karotten 55.660412 after 1 of 100 tests
+14:50:53 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 114, ? Feldnummer 11.110065, ? Karotten 58.559484 after 1 of 100 tests
+14:50:53 INFO  sc.TestClient - Trying to start clients
+14:50:53 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:50:53 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:50:53 INFO  sc.TestClient - Received packet I am not interested in
+14:51:04 WARN  sc.TestClient - Received game result
+14:51:04 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 106, ? Feldnummer 11.245427, ? Karotten 55.972585 after 2 of 100 tests
+14:51:04 INFO  sc.TestClient - Received packet I am not interested in
+14:51:04 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 114, ? Feldnummer 11.118154, ? Karotten 58.299847 after 2 of 100 tests
+14:51:04 INFO  sc.TestClient - Trying to start clients
+14:51:04 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:51:04 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:51:04 INFO  sc.TestClient - Received packet I am not interested in
+14:51:14 WARN  sc.TestClient - Received game result
+14:51:14 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 106, ? Feldnummer 11.261234, ? Karotten 55.729589 after 3 of 100 tests
+14:51:14 INFO  sc.TestClient - Received packet I am not interested in
+14:51:14 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 116, ? Feldnummer 11.108081, ? Karotten 58.765615 after 3 of 100 tests
+14:51:14 INFO  sc.TestClient - Trying to start clients
+14:51:14 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:51:14 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:51:14 INFO  sc.TestClient - Received packet I am not interested in
+14:51:25 WARN  sc.TestClient - Received game result
+14:51:25 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 108, ? Feldnummer 11.249968, ? Karotten 56.035550 after 4 of 100 tests
+14:51:25 INFO  sc.TestClient - Received packet I am not interested in
+14:51:25 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 116, ? Feldnummer 11.116040, ? Karotten 58.508754 after 4 of 100 tests
+14:51:25 INFO  sc.TestClient - Trying to start clients
+14:51:25 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:51:25 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:51:25 INFO  sc.TestClient - Received packet I am not interested in
+14:52:00 INFO  sc.TestClient - loading server.properties
+14:52:00 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:52:00 INFO  sc.TestClient - Authenticate as administrator
+14:52:00 INFO  sc.TestClient - Enabling TestMode
+14:52:00 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:52:00 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:52:00 INFO  sc.TestClient - Received packet I am not interested in
+14:52:00 INFO  sc.TestClient - Trying to start clients
+14:52:00 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:52:00 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:52:00 INFO  sc.TestClient - Received packet I am not interested in
+14:52:11 WARN  sc.TestClient - Received game result
+14:52:11 INFO  sc.TestClient - Received packet I am not interested in
+14:52:11 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 108, ? Feldnummer 11.271892, ? Karotten 55.569985 after 1 of 5 tests
+14:52:11 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 120, ? Feldnummer 11.096455, ? Karotten 58.798045 after 1 of 5 tests
+14:52:11 INFO  sc.TestClient - Trying to start clients
+14:52:11 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:52:11 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:52:11 INFO  sc.TestClient - Received packet I am not interested in
+14:52:22 WARN  sc.TestClient - Received game result
+14:52:22 INFO  sc.TestClient - Received packet I am not interested in
+14:52:22 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 110, ? Feldnummer 11.260829, ? Karotten 55.869357 after 2 of 5 tests
+14:52:22 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 120, ? Feldnummer 11.113003, ? Karotten 58.538911 after 2 of 5 tests
+14:52:22 INFO  sc.TestClient - Trying to start clients
+14:52:22 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:52:22 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:52:22 INFO  sc.TestClient - Received packet I am not interested in
+14:52:32 WARN  sc.TestClient - Received game result
+14:52:32 INFO  sc.TestClient - Received packet I am not interested in
+14:52:32 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 110, ? Feldnummer 11.267197, ? Karotten 55.646328 after 3 of 5 tests
+14:52:32 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 122, ? Feldnummer 11.103405, ? Karotten 58.810109 after 3 of 5 tests
+14:52:32 INFO  sc.TestClient - Trying to start clients
+14:52:32 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:52:32 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:52:32 INFO  sc.TestClient - Received packet I am not interested in
+14:52:43 WARN  sc.TestClient - Received game result
+14:52:43 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 112, ? Feldnummer 11.256366, ? Karotten 55.939950 after 4 of 5 tests
+14:52:43 INFO  sc.TestClient - Received packet I am not interested in
+14:52:43 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 122, ? Feldnummer 11.111068, ? Karotten 58.563869 after 4 of 5 tests
+14:52:43 INFO  sc.TestClient - Trying to start clients
+14:52:43 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:52:43 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:52:43 INFO  sc.TestClient - Received packet I am not interested in
+14:55:55 INFO  sc.TestClient - loading server.properties
+14:55:56 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:55:56 INFO  sc.TestClient - Authenticate as administrator
+14:55:56 INFO  sc.TestClient - Enabling TestMode
+14:55:56 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:55:56 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:55:56 INFO  sc.TestClient - Received packet I am not interested in
+14:55:56 INFO  sc.TestClient - Trying to start clients
+14:55:56 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:55:56 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:55:56 INFO  sc.TestClient - Received packet I am not interested in
+14:56:07 WARN  sc.TestClient - Received game result
+14:56:07 INFO  sc.TestClient - Received packet I am not interested in
+14:56:07 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 0, ? Feldnummer 12.000000, ? Karotten 30.000000 after 1 of 5 tests
+14:56:07 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 2, ? Feldnummer 10.000000, ? Karotten 60.000000 after 1 of 5 tests
+14:56:07 INFO  sc.TestClient - Trying to start clients
+14:56:07 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:56:07 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:56:07 INFO  sc.TestClient - Received packet I am not interested in
+14:56:17 WARN  sc.TestClient - Received game result
+14:56:17 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 2, ? Feldnummer 11.000000, ? Karotten 60.000000 after 2 of 5 tests
+14:56:17 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 2, ? Feldnummer 11.500000, ? Karotten 44.500000 after 2 of 5 tests
+14:56:17 INFO  sc.TestClient - Trying to start clients
+14:56:17 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:56:17 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:56:18 INFO  sc.TestClient - Received packet I am not interested in
+14:56:18 INFO  sc.TestClient - Received packet I am not interested in
+14:56:28 WARN  sc.TestClient - Received game result
+14:56:28 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 2, ? Feldnummer 11.333337, ? Karotten 50.000020 after 3 of 5 tests
+14:56:28 INFO  sc.TestClient - Received packet I am not interested in
+14:56:28 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 4, ? Feldnummer 11.000004, ? Karotten 49.666682 after 3 of 5 tests
+14:56:28 INFO  sc.TestClient - Trying to start clients
+14:56:28 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:56:28 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:56:28 INFO  sc.TestClient - Received packet I am not interested in
+14:56:39 WARN  sc.TestClient - Received game result
+14:56:39 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 4, ? Feldnummer 11.000003, ? Karotten 52.500015 after 4 of 5 tests
+14:56:39 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 4, ? Feldnummer 11.250003, ? Karotten 44.750012 after 4 of 5 tests
+14:56:39 INFO  sc.TestClient - Received packet I am not interested in
+14:56:39 INFO  sc.TestClient - Trying to start clients
+14:56:39 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:56:39 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:56:39 INFO  sc.TestClient - Received packet I am not interested in
+14:56:50 WARN  sc.TestClient - Received game result
+14:56:50 INFO  sc.TestClient - Received packet I am not interested in
+14:56:50 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 4, ? Feldnummer 11.200002, ? Karotten 48.000012 after 5 of 5 tests
+14:56:50 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 6, ? Feldnummer 11.000002, ? Karotten 47.800010 after 5 of 5 tests
+14:56:50 WARN  sc.networking.clients.XStreamClient - Client sc.TestClient@3b2cf7ab disconnected (Cause: LOST_CONNECTION, Exception: java.io.EOFException)
+14:56:50 WARN  sc.networking.clients.XStreamClient - receiver thread is stopping itself
+14:57:35 INFO  sc.TestClient - loading server.properties
+14:57:35 INFO  sc.TestClient - Creating TCP Network for localhost:13050
+14:57:35 INFO  sc.TestClient - Authenticate as administrator
+14:57:35 INFO  sc.TestClient - Enabling TestMode
+14:57:35 INFO  sc.TestClient - Waiting for input of displayName to print players current Score
+14:57:35 INFO  sc.TestClient - TestMode was set to true, starting clients
+14:57:35 INFO  sc.TestClient - Received packet I am not interested in
+14:57:35 INFO  sc.TestClient - Trying to start clients
+14:57:35 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:57:35 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:57:35 INFO  sc.TestClient - Received packet I am not interested in
+14:57:46 WARN  sc.TestClient - Received game result
+14:57:46 INFO  sc.TestClient - Received packet I am not interested in
+14:57:46 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 4, ? Feldnummer 11.333331, ? Karotten 44.999994 after 1 of 5 tests
+14:57:46 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 8, ? Feldnummer 10.833332, ? Karotten 54.833326 after 1 of 5 tests
+14:57:46 INFO  sc.TestClient - Trying to start clients
+14:57:46 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:57:46 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:57:46 INFO  sc.TestClient - Received packet I am not interested in
+14:57:56 WARN  sc.TestClient - Received game result
+14:57:56 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 6, ? Feldnummer 11.142856, ? Karotten 54.285716 after 2 of 5 tests
+14:57:56 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 8, ? Feldnummer 11.000001, ? Karotten 51.285716 after 2 of 5 tests
+14:57:56 INFO  sc.TestClient - Received packet I am not interested in
+14:57:56 INFO  sc.TestClient - Trying to start clients
+14:57:56 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:57:56 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:57:56 INFO  sc.TestClient - Received packet I am not interested in
+14:58:07 WARN  sc.TestClient - Received game result
+14:58:07 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 6, ? Feldnummer 11.249999, ? Karotten 51.250002 after 3 of 5 tests
+14:58:07 INFO  sc.TestClient - Received packet I am not interested in
+14:58:07 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 10, ? Feldnummer 10.875001, ? Karotten 56.125002 after 3 of 5 tests
+14:58:07 INFO  sc.TestClient - Trying to start clients
+14:58:07 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:58:07 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:58:07 INFO  sc.TestClient - Received packet I am not interested in
+14:58:18 WARN  sc.TestClient - Received game result
+14:58:18 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 8, ? Feldnummer 11.111111, ? Karotten 55.555563 after 4 of 5 tests
+14:58:18 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 10, ? Feldnummer 11.000002, ? Karotten 53.222230 after 4 of 5 tests
+14:58:18 INFO  sc.TestClient - Received packet I am not interested in
+14:58:18 INFO  sc.TestClient - Trying to start clients
+14:58:18 INFO  sc.TestClient - Trying first client ./jars/export_20180222_1336/export.jar
+14:58:18 INFO  sc.TestClient - Trying second client ./jars/export_20180222_1336/export.jar
+14:58:18 INFO  sc.TestClient - Received packet I am not interested in
+14:58:28 WARN  sc.TestClient - Received game result
+14:58:28 WARN  sc.TestClient - Received new score for SimpleClient: Siegpunkte 8, ? Feldnummer 11.300000, ? Karotten 52.900007 after 5 of 5 tests
+14:58:28 INFO  sc.TestClient - Received packet I am not interested in
+14:58:28 WARN  sc.TestClient - Received new score for Ours: Siegpunkte 12, ? Feldnummer 10.900002, ? Karotten 53.900007 after 5 of 5 tests
+14:58:28 WARN  sc.networking.clients.XStreamClient - Client sc.TestClient@3b2cf7ab disconnected (Cause: LOST_CONNECTION, Exception: java.io.EOFException)
+14:58:28 WARN  sc.networking.clients.XStreamClient - receiver thread is stopping itself

@@ -1,3 +1,7 @@
 build*
 test_client/jars*
+<<<<<<< HEAD
 doc*
+=======
+doc*
+>>>>>>> 5e2abed8e208771960177b825ecf9c314a7c0255

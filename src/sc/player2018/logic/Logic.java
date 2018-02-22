@@ -147,6 +147,33 @@ public class Logic implements IGameHandler {
 		ArrayList<Move> possibleMoves = gameState.getPossibleMoves();
 		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
 
+		if(gameState.getRound() == Constants.ROUND_LIMIT - 2) {
+			Advance selectedAdvance = null;
+			Move selectedMove = null;
+			for(Move move: possibleMoves) {
+				for(Action action:move.actions) {
+					if(action instanceof Advance) {
+						Advance advance = (Advance) action;
+						if(selectedAdvance == null) {
+							selectedAdvance = advance;
+							selectedMove = move;
+							continue;
+						}
+						if(advance.getDistance()>selectedAdvance.getDistance()) {
+							selectedAdvance = advance;
+							selectedMove = move;
+						}
+					}
+				}
+			}
+			if(selectedMove == null) {
+				selectedMove = possibleMoves.get(rand.nextInt(possibleMoves.size()));
+			}
+			selectedMove.orderActions();
+			sendAction(selectedMove);
+			return;
+		}
+		
 		for (Move move : possibleMoves) {
 			ratedMoves.add(getRatedMove(move));
 		}

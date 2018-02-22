@@ -87,51 +87,47 @@ public class Logic implements IGameHandler {
 			if (action instanceof Advance) {
 				Advance advance = (Advance) action;
 				if (advance.getDistance() + currentPlayer.getFieldIndex() == Constants.NUM_FIELDS - 1) {
-					// Zug ins Ziel
+					// winning move
 					return new RatedMove(move, Integer.MAX_VALUE);
 
 				} else if (gameState.getBoard()
 						.getTypeAt(advance.getDistance() + currentPlayer.getFieldIndex()) == FieldType.SALAD) {
-					// Zug auf Salatfeld
+					// advance to salad field
 					return new RatedMove(move, 4);
 				} else {
-					// Ziehe Vorwärts, wenn möglich
-					return new RatedMove(move, this.getMoveRating(move, gameState));
+					// advancing has a value of 1
+					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
 				}
 			} else if (action instanceof Card) {
 				Card card = (Card) action;
 				if (card.getType() == CardType.EAT_SALAD) {
-					// Zug auf Hasenfeld und danch Salatkarte
-					return new RatedMove(move, 4);
-				} // Muss nicht zusätzlich ausgewählt werden, wurde schon durch Advance
-					// ausgewählt
+					// removing a salad on hare field can only be done once, lower value
+					return new RatedMove(move, 3);
+				}
 			} else if (action instanceof ExchangeCarrots) {
 				ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
 				if (exchangeCarrots.getValue() == 10 && currentPlayer.getCarrots() < 30
 						&& currentPlayer.getFieldIndex() < 40
 						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
-					// Nehme nur Karotten auf, wenn weniger als 30 und nur am Anfang und nicht zwei
-					// mal hintereinander
-					return new RatedMove(move, this.getMoveRating(move, gameState));
+					// Only take carrots if not at start, does not have too many and not twice
+					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30
 						&& currentPlayer.getFieldIndex() >= 40) {
-					// abgeben von Karotten ist nur am Ende sinnvoll
-					return new RatedMove(move, this.getMoveRating(move, gameState));
+					// only remove carrots if at end
+					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
 				}
 			} else if (action instanceof FallBack) {
-				if (currentPlayer.getFieldIndex() > 56 /* letztes Salatfeld */ && currentPlayer.getSalads() > 0) {
-					// Falle nur am Ende (currentPlayer.getFieldIndex() > 56) zurück, außer du
-					// musst noch einen Salat
-					// loswerden
+				if (currentPlayer.getFieldIndex() > 56 /* last salad-field */ && currentPlayer.getSalads() > 0) {
+					// fall back if you are at the end and have not given away all salads
 					return new RatedMove(move, 3);
 				} else if (currentPlayer.getFieldIndex() <= 56 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
-					// Falle zurück, falls sich Rückzug lohnt (nicht zu viele Karotten aufnehmen)
-					return new RatedMove(move, this.getMoveRating(move, gameState)-1);
+					// only go back if it is nice, has lower rating
+					return new RatedMove(move, this.getMoveRating(move, gameState));
 				}
-			} else {
-				// FÃüe Salatessen oder Skip hinzu
-				return new RatedMove(move, this.getMoveRating(move, gameState)-1);
+			} else if (action instanceof EatSalad){
+				// Eat salads you dumb shit
+				return new RatedMove(move, 4);
 			}
 		}
 		return new RatedMove(move,Integer.MIN_VALUE);

@@ -1,0 +1,2 @@
+java -jar -Dlogback.configurationFile=logback-tests.xml sc_test_client.jar --tests 5 --name1 "SimpleClient" --player1 "./jars/export_20180222_1336/export.jar" --timeout1 true --name2 "Ours" --player2 "./jars/export_20180222_1336/export.jar" --timeout2 true
+pause

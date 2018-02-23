@@ -97,7 +97,7 @@ public class Logic implements IGameHandler {
 					return new RatedMove(move, 4);
 				} else {
 					// advancing has a value of 1
-					return new RatedMove(move, this.getMoveRating(move, gameState) + 1);
+					return new RatedMove(move, this.getMoveRating(move, gameState) + advance.getDistance());
 				}
 			} else if (action instanceof Card) {
 				Card card = (Card) action;
@@ -201,13 +201,13 @@ public class Logic implements IGameHandler {
 			}
 		}
 		// select the nearest hare field
+		int nextHareUnoccupied = getNextUnoccupied(FieldType.HARE, currentPlayer.getFieldIndex());
 		for (Move move : saladMoves) {
 			for (Action action : move.actions) {
 				if (action instanceof Advance) {
 					Advance advance = (Advance) action;
 					// check if this field is the nearest
-					if (advance.getDistance() + currentPlayer.getFieldIndex() == gameState
-							.getNextFieldByType(FieldType.HARE, currentPlayer.getFieldIndex())) {
+					if (advance.getDistance() + currentPlayer.getFieldIndex() == nextHareUnoccupied) {
 						move.orderActions();
 						sendAction(move);
 						return true;
@@ -231,9 +231,9 @@ public class Logic implements IGameHandler {
 
 		if (currentPlayer.getSalads() > 0) {
 			/*
-			 * Johannes-strategy for the start:
-			 * Move past the first salad field but use it and waste a turn there (sometimes)
-			 * Then lose all salads at the second salad field.
+			 * Johannes-strategy for the start: Move past the first salad field but use it
+			 * and waste a turn there (sometimes) Then lose all salads at the second salad
+			 * field.
 			 */
 			if (currentPlayer.getFieldIndex() >= 10) {
 				// if we can eat a salad, we should
@@ -251,6 +251,30 @@ public class Logic implements IGameHandler {
 					} else {
 						if (!gameState.isOccupied(22)) {
 							if (sendNextByType(FieldType.SALAD, possibleMoves)) {
+								return;
+							}
+						}else {
+							Move selectedMove = null;
+							Advance selectedAdvance = null;
+							for(Move move:possibleMoves) {
+								for(Action action:move.actions) {
+									if(action instanceof Advance) {
+										Advance advance = (Advance) action;
+										if(selectedAdvance == null) {
+											selectedAdvance = advance;
+											selectedMove = move;
+											continue;
+										}
+										if(advance.getDistance()<selectedAdvance.getDistance()) {
+											selectedAdvance = advance;
+											selectedMove = move;
+										}
+									}
+								}
+							}
+							if(selectedMove != null) {
+								selectedMove.orderActions();
+								sendAction(selectedMove);
 								return;
 							}
 						}

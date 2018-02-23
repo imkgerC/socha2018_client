@@ -173,6 +173,33 @@ public class Logic implements IGameHandler {
 		return false;
 	}
 
+	private boolean sendNextAdvance(ArrayList<Move> possibleMoves) {
+		Move selectedMove = null;
+		Advance selectedAdvance = null;
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					if (selectedAdvance == null) {
+						selectedAdvance = advance;
+						selectedMove = move;
+						continue;
+					}
+					if (advance.getDistance() < selectedAdvance.getDistance()) {
+						selectedAdvance = advance;
+						selectedMove = move;
+					}
+				}
+			}
+		}
+		if (selectedMove != null) {
+			selectedMove.orderActions();
+			sendAction(selectedMove);
+			return true;
+		}
+		return false;
+	}
+
 	private boolean sendEatSalad(ArrayList<Move> possibleMoves) {
 		for (Move move : possibleMoves) {
 			for (Action action : move.actions) {
@@ -253,28 +280,8 @@ public class Logic implements IGameHandler {
 							if (sendNextByType(FieldType.SALAD, possibleMoves)) {
 								return;
 							}
-						}else {
-							Move selectedMove = null;
-							Advance selectedAdvance = null;
-							for(Move move:possibleMoves) {
-								for(Action action:move.actions) {
-									if(action instanceof Advance) {
-										Advance advance = (Advance) action;
-										if(selectedAdvance == null) {
-											selectedAdvance = advance;
-											selectedMove = move;
-											continue;
-										}
-										if(advance.getDistance()<selectedAdvance.getDistance()) {
-											selectedAdvance = advance;
-											selectedMove = move;
-										}
-									}
-								}
-							}
-							if(selectedMove != null) {
-								selectedMove.orderActions();
-								sendAction(selectedMove);
+						} else {
+							if (sendNextAdvance(possibleMoves)) {
 								return;
 							}
 						}
@@ -284,30 +291,16 @@ public class Logic implements IGameHandler {
 				if (currentPlayer.getSalads() > 4) {
 					// let's waste some turns in the beginning to lose a salad and wait for the
 					// enemy to move away
-					if (gameState.getRound() > 1) {
-						// if we already wasted a turn it should be okay to
-						// get on the next hare field and lose a salad
-						if (sendHareEatSalad(possibleMoves)) {
-							return;
-						}
-					} else {
-						// we didn't waste a turn by now so let's decide where to waste it
-						if (gameState.getNextFieldByType(FieldType.POSITION_2, 0) < gameState
-								.getNextFieldByType(FieldType.HARE, 0)) {
-							if (sendNextByType(FieldType.POSITION_2, possibleMoves)) {
-								return;
-							}
-						} else {
-							if (sendHareEatSalad(possibleMoves)) {
-								return;
-							}
-						}
+					if (sendHareEatSalad(possibleMoves)) {
+						return;
 					}
 				} else {
 					// can we move to the next salad field?
 					if (gameState
 							.isOccupied(gameState.getNextFieldByType(FieldType.SALAD, currentPlayer.getFieldIndex()))) {
-						// no we can't, so let's waste time!
+						if (sendNextAdvance(possibleMoves)) {
+							return;
+						}
 					} else {
 						// move to the salad field
 						if (sendNextByType(FieldType.SALAD, possibleMoves)) {

@@ -67,12 +67,13 @@ public class Logic implements IGameHandler {
 			// wtf, let's just ignore this but better not perform this move
 			return Integer.MIN_VALUE;
 		}
-		for(Move nextMove:gamestate_clone.getPossibleMoves()) {
+		for (Move nextMove : gamestate_clone.getPossibleMoves()) {
 			// check if the enemy can win for one of the moves that he can do afterwards
-			for(Action action: nextMove.getActions()) {
-				if(action instanceof Advance) {
+			for (Action action : nextMove.getActions()) {
+				if (action instanceof Advance) {
 					Advance advance = (Advance) action;
-					if(advance.getDistance() + gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS - 1) {
+					if (advance.getDistance()
+							+ gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS - 1) {
 						// if the enemy can win after our move, we shouldn't perform this
 						return Integer.MIN_VALUE;
 					}
@@ -81,7 +82,7 @@ public class Logic implements IGameHandler {
 		}
 		return 0;
 	}
-	
+
 	public RatedMove getRatedMove(Move move) {
 		for (Action action : move.actions) {
 			if (action instanceof Advance) {
@@ -96,7 +97,7 @@ public class Logic implements IGameHandler {
 					return new RatedMove(move, 4);
 				} else {
 					// advancing has a value of 1
-					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
+					return new RatedMove(move, this.getMoveRating(move, gameState) + 1);
 				}
 			} else if (action instanceof Card) {
 				Card card = (Card) action;
@@ -110,11 +111,11 @@ public class Logic implements IGameHandler {
 						&& currentPlayer.getFieldIndex() < 40
 						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
 					// Only take carrots if not at start, does not have too many and not twice
-					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
+					return new RatedMove(move, this.getMoveRating(move, gameState) + 1);
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30
 						&& currentPlayer.getFieldIndex() >= 40) {
 					// only remove carrots if at end
-					return new RatedMove(move, this.getMoveRating(move, gameState)+1);
+					return new RatedMove(move, this.getMoveRating(move, gameState) + 1);
 				}
 			} else if (action instanceof FallBack) {
 				if (currentPlayer.getFieldIndex() > 56 /* last salad-field */ && currentPlayer.getSalads() > 0) {
@@ -125,12 +126,97 @@ public class Logic implements IGameHandler {
 					// only go back if it is nice, has lower rating
 					return new RatedMove(move, this.getMoveRating(move, gameState));
 				}
-			} else if (action instanceof EatSalad){
+			} else if (action instanceof EatSalad) {
 				// Eat salads you dumb shit
 				return new RatedMove(move, 4);
 			}
 		}
-		return new RatedMove(move,Integer.MIN_VALUE);
+		return new RatedMove(move, Integer.MIN_VALUE);
+	}
+
+	private int getNextUnoccupied(FieldType fieldType, int index) {
+		int temp = gameState.getNextFieldByType(fieldType, currentPlayer.getFieldIndex());
+		if (gameState.isOccupied(temp)) {
+			return getNextUnoccupied(fieldType, temp);
+		}
+		return temp;
+	}
+
+	private boolean sendNextByType(FieldType fieldType, ArrayList<Move> possibleMoves) {
+		int nextFieldOfType = getNextUnoccupied(fieldType, currentPlayer.getFieldIndex());
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					if (advance.getDistance() + currentPlayer.getFieldIndex() == nextFieldOfType) {
+						move.orderActions();
+						sendAction(move);
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	private boolean sendFallback(ArrayList<Move> possibleMoves) {
+		for(Move move:possibleMoves) {
+			for(Action action:move.actions) {
+				if(action instanceof FallBack) {
+					move.orderActions();
+					sendAction(move);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean sendEatSalad(ArrayList<Move> possibleMoves) {
+		for(Move move:possibleMoves) {
+			for(Action action:move.actions) {
+				if(action instanceof EatSalad) {
+					move.orderActions();
+					sendAction(move);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean sendHareEatSalad(ArrayList<Move> possibleMoves) {
+		ArrayList<Move> saladMoves = new ArrayList<>();
+
+		// select all moves that play out a salad card
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Card) {
+					Card card = (Card) action;
+					if (card.getType() == CardType.EAT_SALAD) {
+						saladMoves.add(move);
+					}
+				}
+			}
+		}
+		// select the nearest hare field
+		for (Move move : saladMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					// check if this field is the nearest
+					if (advance.getDistance() + currentPlayer.getFieldIndex() == gameState
+							.getNextFieldByType(FieldType.HARE, currentPlayer.getFieldIndex())) {
+						move.orderActions();
+						sendAction(move);
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -143,33 +229,92 @@ public class Logic implements IGameHandler {
 		ArrayList<Move> possibleMoves = gameState.getPossibleMoves();
 		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
 
-		if(gameState.getRound() == Constants.ROUND_LIMIT - 2) {
+		if (currentPlayer.getSalads() > 0) {
+			if (currentPlayer.getFieldIndex() >= 10) {
+				// if we can eat a salad, we should
+				if(gameState.getTypeAt(currentPlayer.getFieldIndex())==FieldType.SALAD && !(currentPlayer.getLastNonSkipAction() instanceof EatSalad)) {
+					if(sendEatSalad(possibleMoves)) {
+						return;
+					}
+				}else {
+					if(currentPlayer.getFieldIndex()>=22) {
+						// go back, you have salads to eat!
+						if(sendFallback(possibleMoves)) {
+							return;
+						}
+					}else {
+						if(!gameState.isOccupied(22)) {
+							if(sendNextByType(FieldType.SALAD,possibleMoves)){
+								return;
+							}
+						}
+					}
+				}
+			} else {
+				if (currentPlayer.getSalads() > 4) {
+					// let's waste some turns in the beginning to lose a salad and wait for the
+					// enemy to move away
+					if (gameState.getRound() > 1) {
+						// if we already wasted a turn it should be okay to
+						// get on the next hare field and lose a salad
+						if (sendHareEatSalad(possibleMoves)) {
+							return;
+						}
+					} else {
+						// we didn't waste a turn by now so let's decide where to waste it
+						if (gameState.getNextFieldByType(FieldType.POSITION_2, 0) < gameState
+								.getNextFieldByType(FieldType.HARE, 0)) {
+							if (sendNextByType(FieldType.POSITION_2,possibleMoves)) {
+								return;
+							}
+						} else {
+							if (sendHareEatSalad(possibleMoves)) {
+								return;
+							}
+						}
+					}
+				} else {
+					// can we move to the next salad field?
+					if (gameState
+							.isOccupied(gameState.getNextFieldByType(FieldType.SALAD, currentPlayer.getFieldIndex()))) {
+						// no we can't, so let's waste time!
+					} else {
+						// move to the salad field
+						if (sendNextByType(FieldType.SALAD,possibleMoves)) {
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		if (gameState.getRound() == Constants.ROUND_LIMIT - 2) {
 			Advance selectedAdvance = null;
 			Move selectedMove = null;
-			for(Move move: possibleMoves) {
-				for(Action action:move.actions) {
-					if(action instanceof Advance) {
+			for (Move move : possibleMoves) {
+				for (Action action : move.actions) {
+					if (action instanceof Advance) {
 						Advance advance = (Advance) action;
-						if(selectedAdvance == null) {
+						if (selectedAdvance == null) {
 							selectedAdvance = advance;
 							selectedMove = move;
 							continue;
 						}
-						if(advance.getDistance()>selectedAdvance.getDistance()) {
+						if (advance.getDistance() > selectedAdvance.getDistance()) {
 							selectedAdvance = advance;
 							selectedMove = move;
 						}
 					}
 				}
 			}
-			if(selectedMove == null) {
+			if (selectedMove == null) {
 				selectedMove = possibleMoves.get(rand.nextInt(possibleMoves.size()));
 			}
 			selectedMove.orderActions();
 			sendAction(selectedMove);
 			return;
 		}
-		
+
 		for (Move move : possibleMoves) {
 			ratedMoves.add(getRatedMove(move));
 		}

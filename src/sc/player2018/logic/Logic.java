@@ -159,11 +159,11 @@ public class Logic implements IGameHandler {
 
 		return false;
 	}
-	
+
 	private boolean sendFallback(ArrayList<Move> possibleMoves) {
-		for(Move move:possibleMoves) {
-			for(Action action:move.actions) {
-				if(action instanceof FallBack) {
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof FallBack) {
 					move.orderActions();
 					sendAction(move);
 					return true;
@@ -172,11 +172,11 @@ public class Logic implements IGameHandler {
 		}
 		return false;
 	}
-	
+
 	private boolean sendEatSalad(ArrayList<Move> possibleMoves) {
-		for(Move move:possibleMoves) {
-			for(Action action:move.actions) {
-				if(action instanceof EatSalad) {
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof EatSalad) {
 					move.orderActions();
 					sendAction(move);
 					return true;
@@ -232,19 +232,20 @@ public class Logic implements IGameHandler {
 		if (currentPlayer.getSalads() > 0) {
 			if (currentPlayer.getFieldIndex() >= 10) {
 				// if we can eat a salad, we should
-				if(gameState.getTypeAt(currentPlayer.getFieldIndex())==FieldType.SALAD && !(currentPlayer.getLastNonSkipAction() instanceof EatSalad)) {
-					if(sendEatSalad(possibleMoves)) {
+				if (gameState.getTypeAt(currentPlayer.getFieldIndex()) == FieldType.SALAD
+						&& !(currentPlayer.getLastNonSkipAction() instanceof EatSalad)) {
+					if (sendEatSalad(possibleMoves)) {
 						return;
 					}
-				}else {
-					if(currentPlayer.getFieldIndex()>=22) {
+				} else {
+					if (currentPlayer.getFieldIndex() >= 22) {
 						// go back, you have salads to eat!
-						if(sendFallback(possibleMoves)) {
+						if (sendFallback(possibleMoves)) {
 							return;
 						}
-					}else {
-						if(!gameState.isOccupied(22)) {
-							if(sendNextByType(FieldType.SALAD,possibleMoves)){
+					} else {
+						if (!gameState.isOccupied(22)) {
+							if (sendNextByType(FieldType.SALAD, possibleMoves)) {
 								return;
 							}
 						}
@@ -264,7 +265,7 @@ public class Logic implements IGameHandler {
 						// we didn't waste a turn by now so let's decide where to waste it
 						if (gameState.getNextFieldByType(FieldType.POSITION_2, 0) < gameState
 								.getNextFieldByType(FieldType.HARE, 0)) {
-							if (sendNextByType(FieldType.POSITION_2,possibleMoves)) {
+							if (sendNextByType(FieldType.POSITION_2, possibleMoves)) {
 								return;
 							}
 						} else {
@@ -280,7 +281,7 @@ public class Logic implements IGameHandler {
 						// no we can't, so let's waste time!
 					} else {
 						// move to the salad field
-						if (sendNextByType(FieldType.SALAD,possibleMoves)) {
+						if (sendNextByType(FieldType.SALAD, possibleMoves)) {
 							return;
 						}
 					}

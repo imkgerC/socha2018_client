@@ -230,6 +230,11 @@ public class Logic implements IGameHandler {
 		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
 
 		if (currentPlayer.getSalads() > 0) {
+			/*
+			 * Johannes-strategy for the start:
+			 * Move past the first salad field but use it and waste a turn there (sometimes)
+			 * Then lose all salads at the second salad field.
+			 */
 			if (currentPlayer.getFieldIndex() >= 10) {
 				// if we can eat a salad, we should
 				if (gameState.getTypeAt(currentPlayer.getFieldIndex()) == FieldType.SALAD

@@ -96,8 +96,13 @@ public class Logic implements IGameHandler {
 					// advance to salad field
 					return new RatedMove(move, 4);
 				} else {
-					// advancing has a value of 1
-					return new RatedMove(move, this.getMoveRating(move, gameState) + advance.getDistance());
+					int carrotsNeeded = (int) ((advance.getDistance() + 1) * ((float) advance.getDistance() / 2));
+					int awayFromGoalAfter = Constants.NUM_FIELDS
+							- (currentPlayer.getFieldIndex() + advance.getDistance() + 1);
+					int carrotsNeededToGoal = (int) ((awayFromGoalAfter + 1) * ((float) awayFromGoalAfter / 2))
+							+ carrotsNeeded;
+					return new RatedMove(move,
+							this.getMoveRating(move, gameState) - (currentPlayer.getCarrots() - carrotsNeededToGoal));
 				}
 			} else if (action instanceof Card) {
 				Card card = (Card) action;
@@ -110,8 +115,8 @@ public class Logic implements IGameHandler {
 				if (exchangeCarrots.getValue() == 10 && currentPlayer.getCarrots() < 30
 						&& currentPlayer.getFieldIndex() < 40
 						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
-					// Only take carrots if not at start, does not have too many and not twice
-					return new RatedMove(move, this.getMoveRating(move, gameState) + 1);
+					// do not take carrots in the end game
+					return new RatedMove(move, Integer.MIN_VALUE);
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30
 						&& currentPlayer.getFieldIndex() >= 40) {
 					// only remove carrots if at end
@@ -123,8 +128,8 @@ public class Logic implements IGameHandler {
 					return new RatedMove(move, 3);
 				} else if (currentPlayer.getFieldIndex() <= 56 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
-					// only go back if it is nice, has lower rating
-					return new RatedMove(move, this.getMoveRating(move, gameState));
+					// never go back in end game
+					return new RatedMove(move, Integer.MIN_VALUE);
 				}
 			} else if (action instanceof EatSalad) {
 				// Eat salads you dumb shit
@@ -256,9 +261,28 @@ public class Logic implements IGameHandler {
 		ArrayList<Move> possibleMoves = gameState.getPossibleMoves();
 		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
 
+		// debugging
+		if (gameState.getRound() == 0) {
+			System.out.println("We are color: " + currentPlayer.getPlayerColor());
+		}
+
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					if (advance.getDistance() + currentPlayer.getFieldIndex() == Constants.NUM_FIELDS - 1) {
+						// winning move
+						move.orderActions();
+						sendAction(move);
+						return;
+					}
+				}
+			}
+		}
+
 		if (currentPlayer.getSalads() > 0) {
 			/*
-			 * Johannes-strategy for the start: Move past the first salad field but use it
+			 * Johannes' strategy for the start: Move past the first salad field but use it
 			 * and waste a turn there (sometimes) Then lose all salads at the second salad
 			 * field.
 			 */
@@ -308,6 +332,42 @@ public class Logic implements IGameHandler {
 						}
 					}
 				}
+			}
+		} else {
+			// taking the third most far away field should be okay
+			if (currentPlayer.getFieldIndex() < 50) {
+				int[] threeHighest = { 0, 0, 0 };
+				Move[] selectedMoves = { null, null, null };
+				for (Move move : possibleMoves) {
+					for (Action action : move.actions) {
+						if (action instanceof Advance) {
+							Advance advance = (Advance) action;
+							if (advance.getDistance() > threeHighest[0]) {
+								threeHighest[2] = threeHighest[1];
+								threeHighest[1] = threeHighest[0];
+								threeHighest[0] = advance.getDistance();
+								selectedMoves[2] = selectedMoves[1];
+								selectedMoves[1] = selectedMoves[0];
+								selectedMoves[0] = move;
+							} else if (advance.getDistance() > threeHighest[1]) {
+								threeHighest[2] = threeHighest[1];
+								threeHighest[1] = advance.getDistance();
+								selectedMoves[2] = selectedMoves[1];
+								selectedMoves[1] = move;
+							} else if (advance.getDistance() > threeHighest[2]) {
+								threeHighest[2] = advance.getDistance();
+								selectedMoves[2] = move;
+							}
+						}
+					}
+				}
+				if (selectedMoves[2] != null) {
+					selectedMoves[2].orderActions();
+					sendAction(selectedMoves[2]);
+					return;
+				}
+			} else {
+				// end-game wtf to do here?
 			}
 		}
 
@@ -383,6 +443,10 @@ public class Logic implements IGameHandler {
 	 */
 	@Override
 	public void sendAction(Move move) {
+		if (move.actions.size() < 1) {
+			log.warn("EMERGENCY MOVE");
+			move = gameState.getPossibleMoves().get(rand.nextInt(gameState.getPossibleMoves().size()));
+		}
 		client.sendMove(move);
 	}
 

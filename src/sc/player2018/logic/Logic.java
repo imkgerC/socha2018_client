@@ -304,6 +304,33 @@ public class Logic implements IGameHandler {
 				}
 			}
 		}
+		
+		if (gameState.getRound() == Constants.ROUND_LIMIT - 2) {
+			Advance selectedAdvance = null;
+			Move selectedMove = null;
+			for (Move move : possibleMoves) {
+				for (Action action : move.actions) {
+					if (action instanceof Advance) {
+						Advance advance = (Advance) action;
+						if (selectedAdvance == null) {
+							selectedAdvance = advance;
+							selectedMove = move;
+							continue;
+						}
+						if (advance.getDistance() > selectedAdvance.getDistance()) {
+							selectedAdvance = advance;
+							selectedMove = move;
+						}
+					}
+				}
+			}
+			if (selectedMove != null) {
+				selectedMove.orderActions();
+				sendAction(selectedMove);
+				prepareEnd(startTime);
+				return;
+			}
+		}
 
 		if (currentPlayer.getSalads() > 0) {
 			/*
@@ -373,6 +400,16 @@ public class Logic implements IGameHandler {
 				for (Move move : possibleMoves) {
 					for (Action action : move.actions) {
 						if (action instanceof Advance) {
+							boolean hasCard = false;
+							for(Action inner_action: move.actions) {
+								if(inner_action instanceof Card) {
+									hasCard = true;
+									break;
+								}
+							}
+							if(hasCard) {
+								continue;
+							}
 							Advance advance = (Advance) action;
 							if (advance.getDistance() > threeHighest[0]) {
 								threeHighest[2] = threeHighest[1];
@@ -420,33 +457,6 @@ public class Logic implements IGameHandler {
 						}
 					}
 				}
-			}
-		}
-
-		if (gameState.getRound() == Constants.ROUND_LIMIT - 2) {
-			Advance selectedAdvance = null;
-			Move selectedMove = null;
-			for (Move move : possibleMoves) {
-				for (Action action : move.actions) {
-					if (action instanceof Advance) {
-						Advance advance = (Advance) action;
-						if (selectedAdvance == null) {
-							selectedAdvance = advance;
-							selectedMove = move;
-							continue;
-						}
-						if (advance.getDistance() > selectedAdvance.getDistance()) {
-							selectedAdvance = advance;
-							selectedMove = move;
-						}
-					}
-				}
-			}
-			if (selectedMove != null) {
-				selectedMove.orderActions();
-				sendAction(selectedMove);
-				prepareEnd(startTime);
-				return;
 			}
 		}
 

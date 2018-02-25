@@ -165,6 +165,9 @@ public class Logic implements IGameHandler {
 
 	private int getNextUnoccupied(FieldType fieldType, int index) {
 		int temp = gameState.getNextFieldByType(fieldType, currentPlayer.getFieldIndex());
+		if(temp<0) {
+			return -1;
+		}
 		if (gameState.isOccupied(temp)) {
 			return getNextUnoccupied(fieldType, temp);
 		}

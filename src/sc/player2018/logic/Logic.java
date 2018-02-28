@@ -163,15 +163,19 @@ public class Logic implements IGameHandler {
 		return new RatedMove(move, Integer.MIN_VALUE);
 	}
 
-	private int getNextUnoccupied(FieldType fieldType, int index) {
+	private int getNextUnoccupied(FieldType fieldType, int index, int depth) {
 		int temp = gameState.getNextFieldByType(fieldType, currentPlayer.getFieldIndex());
-		if(temp<0) {
+		if(temp<0 || depth >= 20) {
 			return -1;
 		}
 		if (gameState.isOccupied(temp)) {
-			return getNextUnoccupied(fieldType, temp);
+			return getNextUnoccupied(fieldType, temp,depth+1);
 		}
 		return temp;
+	}
+	
+	private int getNextUnoccupied(FieldType fieldType, int index) {
+		return getNextUnoccupied(fieldType,index,0);
 	}
 
 	private boolean sendNextByType(FieldType fieldType, ArrayList<Move> possibleMoves) {

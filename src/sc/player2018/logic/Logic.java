@@ -82,6 +82,9 @@ public class Logic implements IGameHandler {
 						return -depth;
 					}
 				}
+				if (action instanceof FallBack) {
+					calculate = false;
+				}
 				if (action instanceof Card) {
 					Card card = (Card) action;
 					if (card.getType() != CardType.TAKE_OR_DROP_CARROTS) {
@@ -162,17 +165,17 @@ public class Logic implements IGameHandler {
 
 	private int getNextUnoccupied(FieldType fieldType, int index, int depth) {
 		int temp = gameState.getNextFieldByType(fieldType, currentPlayer.getFieldIndex());
-		if(temp<0 || depth >= 20) {
+		if (temp < 0 || depth >= 20) {
 			return -1;
 		}
 		if (gameState.isOccupied(temp)) {
-			return getNextUnoccupied(fieldType, temp,depth+1);
+			return getNextUnoccupied(fieldType, temp, depth + 1);
 		}
 		return temp;
 	}
-	
+
 	private int getNextUnoccupied(FieldType fieldType, int index) {
-		return getNextUnoccupied(fieldType,index,0);
+		return getNextUnoccupied(fieldType, index, 0);
 	}
 
 	private boolean sendNextByType(FieldType fieldType, ArrayList<Move> possibleMoves) {
@@ -308,7 +311,7 @@ public class Logic implements IGameHandler {
 				}
 			}
 		}
-		
+
 		if (gameState.getRound() == Constants.ROUND_LIMIT - 2) {
 			Advance selectedAdvance = null;
 			Move selectedMove = null;
@@ -364,6 +367,10 @@ public class Logic implements IGameHandler {
 								return;
 							}
 						} else {
+							if (sendFallback(possibleMoves)) {
+								prepareEnd(startTime);
+								return;
+							}
 							if (sendNextAdvance(possibleMoves)) {
 								prepareEnd(startTime);
 								return;
@@ -405,13 +412,13 @@ public class Logic implements IGameHandler {
 					for (Action action : move.actions) {
 						if (action instanceof Advance) {
 							boolean hasCard = false;
-							for(Action inner_action: move.actions) {
-								if(inner_action instanceof Card) {
+							for (Action inner_action : move.actions) {
+								if (inner_action instanceof Card) {
 									hasCard = true;
 									break;
 								}
 							}
-							if(hasCard) {
+							if (hasCard) {
 								continue;
 							}
 							Advance advance = (Advance) action;
@@ -447,12 +454,12 @@ public class Logic implements IGameHandler {
 					int highestRating = 0;
 					for (Move move : possibleMoves) {
 						int rating = this.getMoveRating(move, gameState, 7);
-						if(rating > highestRating) {
+						if (rating > highestRating) {
 							selectedMove = move;
 							highestRating = rating;
 						}
 					}
-					if(selectedMove!=null) {
+					if (selectedMove != null) {
 						selectedMove.orderActions();
 						sendAction(selectedMove);
 						prepareEnd(startTime);
@@ -463,12 +470,12 @@ public class Logic implements IGameHandler {
 					int highestRating = 0;
 					for (Move move : possibleMoves) {
 						int rating = this.getMoveRating(move, gameState, 4);
-						if(rating > highestRating) {
+						if (rating > highestRating) {
 							selectedMove = move;
 							highestRating = rating;
 						}
 					}
-					if(selectedMove!=null) {
+					if (selectedMove != null) {
 						selectedMove.orderActions();
 						sendAction(selectedMove);
 						prepareEnd(startTime);

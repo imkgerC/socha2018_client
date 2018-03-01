@@ -50,7 +50,7 @@ public class Logic implements IGameHandler {
 		log.info("Das Spiel ist beendet.");
 	}
 
-	public int getMoveRating(Move move, GameState gamestate, int depth) {
+	private int getMoveRating(Move move, GameState gamestate, int depth) {
 		if (depth == 0) {
 			return 0;
 		}
@@ -65,10 +65,10 @@ public class Logic implements IGameHandler {
 			move.perform(gamestate_clone);
 		} catch (InvalidMoveException e) {
 			// Move is not valid, do not perform, disqualifies us.
-			return -1;
+			return -depth;
 		} catch (InvalidGameStateException e) {
 			// wtf, let's just ignore this but better not perform this move
-			return -1;
+			return -depth;
 		}
 		for (Move nextMove : gamestate_clone.getPossibleMoves()) {
 			// check if the enemy can win for one of the moves that he can do afterwards
@@ -79,11 +79,8 @@ public class Logic implements IGameHandler {
 					if (advance.getDistance()
 							+ gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS - 1) {
 						// enemy can win after our move
-						return -1;
+						return -depth;
 					}
-				}
-				if (action instanceof FallBack) {
-					calculate = false;
 				}
 				if (action instanceof Card) {
 					Card card = (Card) action;
@@ -107,7 +104,7 @@ public class Logic implements IGameHandler {
 		log.warn("Time needed for turn: {}", (nowTime - startTime) / 1000000);
 	}
 
-	public RatedMove getRatedMove(Move move) {
+	private RatedMove getRatedMove(Move move) {
 		// method is used if nothing else could be found or an emergency emerges
 		for (Action action : move.actions) {
 			if (action instanceof Advance) {
@@ -446,22 +443,36 @@ public class Logic implements IGameHandler {
 			} else {
 				// end-game
 				if (currentPlayer.getFieldIndex() > 56) {
+					Move selectedMove = null;
+					int highestRating = 0;
 					for (Move move : possibleMoves) {
-						if (this.getMoveRating(move, gameState, 7) == 1) {
-							move.orderActions();
-							sendAction(move);
-							prepareEnd(startTime);
-							return;
+						int rating = this.getMoveRating(move, gameState, 7);
+						if(rating > highestRating) {
+							selectedMove = move;
+							highestRating = rating;
 						}
 					}
+					if(selectedMove!=null) {
+						selectedMove.orderActions();
+						sendAction(selectedMove);
+						prepareEnd(startTime);
+						return;
+					}
 				} else {
+					Move selectedMove = null;
+					int highestRating = 0;
 					for (Move move : possibleMoves) {
-						if (this.getMoveRating(move, gameState, 4) == 1) {
-							move.orderActions();
-							sendAction(move);
-							prepareEnd(startTime);
-							return;
+						int rating = this.getMoveRating(move, gameState, 4);
+						if(rating > highestRating) {
+							selectedMove = move;
+							highestRating = rating;
 						}
+					}
+					if(selectedMove!=null) {
+						selectedMove.orderActions();
+						sendAction(selectedMove);
+						prepareEnd(startTime);
+						return;
 					}
 				}
 			}

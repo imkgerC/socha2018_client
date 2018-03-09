@@ -12,8 +12,6 @@ import sc.plugin2018.*;
 import sc.plugin2018.util.Constants;
 import sc.shared.PlayerColor;
 import sc.shared.GameResult;
-import sc.shared.InvalidGameStateException;
-import sc.shared.InvalidMoveException;
 
 /**
  * Logic of the simple client we are building
@@ -135,6 +133,11 @@ public class Logic implements IGameHandler {
 								return;
 							}
 						} else {
+							if(currentPlayer.getFieldIndex() == 15) {
+								if(endIfPossible(LogicHelper.getNextByType(FieldType.POSITION_2, possibleMoves, gameState, currentPlayer),startTime)) {
+									return;
+								}
+							}
 							if (endIfPossible(LogicHelper.getFallback(possibleMoves), startTime)) {
 								return;
 							}
@@ -212,11 +215,11 @@ public class Logic implements IGameHandler {
 			} else {
 				// end-game
 				if (currentPlayer.getFieldIndex() > 56) {
-					if (endIfPossible(LogicHelper.getWinningMove(possibleMoves, 7, gameState), startTime)) {
+					if (endIfPossible(LogicHelper.getWinningMove(possibleMoves, 7, gameState, startTime), startTime)) {
 						return;
 					}
 				} else {
-					if (endIfPossible(LogicHelper.getWinningMove(possibleMoves, 4, gameState), startTime)) {
+					if (endIfPossible(LogicHelper.getSimpleEndMove(possibleMoves, gameState, currentPlayer), startTime)) {
 						return;
 					}
 				}

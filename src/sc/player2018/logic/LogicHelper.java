@@ -6,13 +6,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import sc.player2018.Starter;
 import sc.plugin2018.*;
 import sc.plugin2018.util.Constants;
-import sc.shared.PlayerColor;
-import sc.shared.GameResult;
 import sc.shared.InvalidGameStateException;
 import sc.shared.InvalidMoveException;
 
@@ -143,10 +138,76 @@ public class LogicHelper {
 		return new RatedMove(move, Integer.MIN_VALUE);
 	}
 
+	public static RatedMove getEndRatedMove(Move move, GameState gameState, Player currentPlayer) {
+		// method is used if nothing else could be found or an emergency emerges
+		for (Action action : move.actions) {
+			if (action instanceof Advance) {
+				Advance advance = (Advance) action;
+				if (advance.getDistance() + currentPlayer.getFieldIndex() == Constants.NUM_FIELDS - 1) {
+					// winning move
+					return new RatedMove(move, Integer.MAX_VALUE);
+
+				} else {
+					// complicated formula for calculating some semi-random bullcrap
+					int carrotsNeeded = (int) ((advance.getDistance() + 1) * ((float) advance.getDistance() / 2));
+					int awayFromGoalAfter = Constants.NUM_FIELDS
+							- (currentPlayer.getFieldIndex() + advance.getDistance() + 1);
+					int carrotsNeededToGoal = (int) ((awayFromGoalAfter + 1) * ((float) awayFromGoalAfter / 2))
+							+ carrotsNeeded;
+					int carrotsLeftAfter = (currentPlayer.getCarrots() - carrotsNeededToGoal);
+					if (carrotsLeftAfter < 10 && carrotsLeftAfter > 0) {
+						if (gameState
+								.getTypeAt(currentPlayer.getFieldIndex() + advance.getDistance()) == FieldType.CARROT) {
+							return new RatedMove(move, 10);
+						}
+					}
+					return new RatedMove(move, advance.getDistance());
+				}
+			} else if (action instanceof ExchangeCarrots) {
+				ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
+				if (exchangeCarrots.getValue() == 10 && currentPlayer.getCarrots() < 30
+						&& currentPlayer.getFieldIndex() < 56
+						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
+					// do not take carrots in end game
+					return new RatedMove(move, 1);
+				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30) {
+					// only remove carrots if at end
+					return new RatedMove(move, 1);
+				}
+			} else if (action instanceof FallBack) {
+				if (currentPlayer.getCarrots() < 10 && currentPlayer.getFieldIndex()
+						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
+					// go back scarcly
+					return new RatedMove(move, 1);
+				}
+			}
+		}
+		return new RatedMove(move, Integer.MIN_VALUE);
+	}
+
 	public static Move getSimpleMove(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
 		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
 		for (Move move : possibleMoves) {
 			ratedMoves.add(LogicHelper.getRatedMove(move, gameState, currentPlayer));
+		}
+		RatedMove selectedMove = new RatedMove();
+		if (ratedMoves.size() < 1) {
+			selectedMove = new RatedMove(possibleMoves.get(rand.nextInt(possibleMoves.size())));
+		} else {
+			for (RatedMove move : ratedMoves) {
+				if (move.getRating() > selectedMove.getRating()) {
+					selectedMove = move;
+				}
+			}
+		}
+
+		return selectedMove.getMove();
+	}
+
+	public static Move getSimpleEndMove(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
+		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
+		for (Move move : possibleMoves) {
+			ratedMoves.add(LogicHelper.getEndRatedMove(move, gameState, currentPlayer));
 		}
 		RatedMove selectedMove = new RatedMove();
 		if (ratedMoves.size() < 1) {
@@ -289,16 +350,31 @@ public class LogicHelper {
 		return 0;
 	}
 
-	public static Move getWinningMove(ArrayList<Move> possibleMoves, int depth, GameState gameState) {
+	public static Move getWinningMove(ArrayList<Move> possibleMoves, int depth, GameState gameState, long startTime) {
 		Move selectedMove = null;
 		int highestRating = 0;
 		for (Move move : possibleMoves) {
+			if(!timeEnough(startTime)) {
+				break;
+			}
+			boolean calculate = true;
+			for(Action action:move.getActions()) {
+				if(action instanceof Card) {
+					calculate = false;
+				}
+			}
+			if(!calculate) {
+				break;
+			}
 			int rating = getMoveRating(move, gameState, depth);
 			if (rating > highestRating) {
 				selectedMove = move;
 				highestRating = rating;
 			}
 		}
-		return selectedMove;
+		if(highestRating>0) {
+			return selectedMove;
+		}
+		return null;
 	}
 }

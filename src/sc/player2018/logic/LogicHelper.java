@@ -8,8 +8,6 @@ import java.util.Random;
 import org.slf4j.Logger;
 import sc.plugin2018.*;
 import sc.plugin2018.util.Constants;
-import sc.shared.InvalidGameStateException;
-import sc.shared.InvalidMoveException;
 
 public class LogicHelper {
 
@@ -248,6 +246,71 @@ public class LogicHelper {
 		return null;
 	}
 
+	public static Move getLastAdvance(ArrayList<Move> possibleMoves) {
+		Move selectedMove = null;
+		Advance selectedAdvance = null;
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					if (selectedAdvance == null) {
+						selectedAdvance = advance;
+						selectedMove = move;
+						continue;
+					}
+					if (advance.getDistance() > selectedAdvance.getDistance()) {
+						selectedAdvance = advance;
+						selectedMove = move;
+					}
+				}
+			}
+		}
+		if (selectedMove != null) {
+			return selectedMove;
+		}
+		return null;
+	}
+
+	public static Move getAdvanceFarAway(ArrayList<Move> possibleMoves) {
+		// taking the third most far away field should be okay for now
+		int[] threeHighest = { 0, 0, 0 };
+		Move[] selectedMoves = { null, null, null };
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					boolean hasCard = false;
+					for (Action inner_action : move.actions) {
+						if (inner_action instanceof Card) {
+							hasCard = true;
+							break;
+						}
+					}
+					if (hasCard) {
+						continue;
+					}
+					Advance advance = (Advance) action;
+					if (advance.getDistance() > threeHighest[0]) {
+						threeHighest[2] = threeHighest[1];
+						threeHighest[1] = threeHighest[0];
+						threeHighest[0] = advance.getDistance();
+						selectedMoves[2] = selectedMoves[1];
+						selectedMoves[1] = selectedMoves[0];
+						selectedMoves[0] = move;
+					} else if (advance.getDistance() > threeHighest[1]) {
+						threeHighest[2] = threeHighest[1];
+						threeHighest[1] = advance.getDistance();
+						selectedMoves[2] = selectedMoves[1];
+						selectedMoves[1] = move;
+					} else if (advance.getDistance() > threeHighest[2]) {
+						threeHighest[2] = advance.getDistance();
+						selectedMoves[2] = move;
+					}
+				}
+			}
+		}
+		return selectedMoves[2];
+	}
+
 	public static Move getHareEatSalad(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
 		ArrayList<Move> saladMoves = new ArrayList<>();
 
@@ -298,7 +361,10 @@ public class LogicHelper {
 		return null;
 	}
 
-	public static int getMoveRating(Move move, GameState gamestate, int depth) {
+	/*public static int getMoveRating(Move move, GameState gamestate, int depth, long startTime) {
+		if (!timeEnough(startTime)) {
+			return 0;
+		}
 		if (depth == 0) {
 			return 0;
 		}
@@ -341,7 +407,7 @@ public class LogicHelper {
 				}
 			}
 			if (calculate) {
-				int rating = -getMoveRating(move, gamestate_clone, depth - 1);
+				int rating = -getMoveRating(move, gamestate_clone, depth - 1, startTime);
 				if (rating != 0) {
 					return rating;
 				}
@@ -354,27 +420,27 @@ public class LogicHelper {
 		Move selectedMove = null;
 		int highestRating = 0;
 		for (Move move : possibleMoves) {
-			if(!timeEnough(startTime)) {
+			if (!timeEnough(startTime)) {
 				break;
 			}
 			boolean calculate = true;
-			for(Action action:move.getActions()) {
-				if(action instanceof Card) {
+			for (Action action : move.getActions()) {
+				if (action instanceof Card) {
 					calculate = false;
 				}
 			}
-			if(!calculate) {
+			if (!calculate) {
 				break;
 			}
-			int rating = getMoveRating(move, gameState, depth);
+			int rating = getMoveRating(move, gameState, depth, startTime);
 			if (rating > highestRating) {
 				selectedMove = move;
 				highestRating = rating;
 			}
 		}
-		if(highestRating>0) {
+		if (highestRating > 0) {
 			return selectedMove;
 		}
 		return null;
-	}
+	}*/
 }

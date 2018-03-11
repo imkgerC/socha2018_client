@@ -25,17 +25,10 @@ public class Logic implements IGameHandler {
 	private static final Logger log = LoggerFactory.getLogger(Logic.class);
 	private static final Random rand = new SecureRandom();
 
-	/**
-	 * @param client
-	 *            Client being able to communicate with the server
-	 */
 	public Logic(Starter client) {
 		this.client = client;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void gameEnded(GameResult data, PlayerColor color, String errorMessage) {
 		log.info("Das Spiel ist beendet.");
 	}
@@ -50,9 +43,6 @@ public class Logic implements IGameHandler {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onRequestAction() {
 		long startTime = System.nanoTime();
@@ -150,6 +140,9 @@ public class Logic implements IGameHandler {
 		} else {
 			// there are no salads left
 			if (currentPlayer.getFieldIndex() < 47) {
+				if (endIfPossible(LogicHelper.getFurthestPos(possibleMoves, gameState, currentPlayer), startTime)) {
+					return;
+				}
 				if (endIfPossible(LogicHelper.getAdvanceFarAway(possibleMoves), startTime)) {
 					return;
 				}
@@ -168,18 +161,12 @@ public class Logic implements IGameHandler {
 		LogicHelper.prepareEnd(startTime, log);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onUpdate(Player player, Player otherPlayer) {
 		currentPlayer = player;
 		log.info("Spielerwechsel: " + player.getPlayerColor());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onUpdate(GameState gameState) {
 		this.gameState = gameState;
@@ -188,9 +175,6 @@ public class Logic implements IGameHandler {
 		log.info("Spieler: {}", currentPlayer.getPlayerColor());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void sendAction(Move move) {
 		if (move.actions.size() < 1) {

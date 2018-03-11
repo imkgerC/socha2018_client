@@ -3,11 +3,15 @@ package sc.player2018.logic;
 import java.security.SecureRandom;
 import sc.player2018.RatedMove;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import sc.plugin2018.*;
 import sc.plugin2018.util.Constants;
+import sc.plugin2018.util.GameRuleLogic;
 
 public class LogicHelper {
 
@@ -163,9 +167,9 @@ public class LogicHelper {
 				}
 			} else if (action instanceof ExchangeCarrots) {
 				ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
-				if (exchangeCarrots.getValue() == 10 && currentPlayer.getCarrots() < 30
-						&& currentPlayer.getFieldIndex() < 56
-						&& !(currentPlayer.getLastNonSkipAction() instanceof ExchangeCarrots)) {
+				if (((currentPlayer.getCarrots() < 30 && currentPlayer.getFieldIndex() < 56)
+						|| (currentPlayer.getFieldIndex() > 56 && currentPlayer.getCarrots() <= 10))
+						&& exchangeCarrots.getValue() == 10) {
 					// do not take carrots in end game
 					return new RatedMove(move, 1);
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30) {
@@ -175,7 +179,7 @@ public class LogicHelper {
 			} else if (action instanceof FallBack) {
 				if (currentPlayer.getCarrots() < 10 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
-					// go back scarcly
+					// go back scarcely
 					return new RatedMove(move, 1);
 				}
 			}
@@ -361,86 +365,81 @@ public class LogicHelper {
 		return null;
 	}
 
-	/*public static int getMoveRating(Move move, GameState gamestate, int depth, long startTime) {
-		if (!timeEnough(startTime)) {
-			return 0;
-		}
-		if (depth == 0) {
-			return 0;
-		}
-		GameState gamestate_clone;
-		try {
-			gamestate_clone = gamestate.clone();
-		} catch (CloneNotSupportedException e1) {
-			// wtf, let's just ignore this
-			return 0;
-		}
-		try {
-			move.perform(gamestate_clone);
-		} catch (InvalidMoveException e) {
-			// Move is not valid, do not perform, disqualifies us.
-			return -depth;
-		} catch (InvalidGameStateException e) {
-			// wtf, let's just ignore this but better not perform this move
-			return -depth;
-		}
-		for (Move nextMove : gamestate_clone.getPossibleMoves()) {
-			// check if the enemy can win for one of the moves that he can do afterwards
-			boolean calculate = true;
-			for (Action action : nextMove.getActions()) {
-				if (action instanceof Advance) {
-					Advance advance = (Advance) action;
-					if (advance.getDistance()
-							+ gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS - 1) {
-						// enemy can win after our move
-						return -depth;
-					}
-				}
-				if (action instanceof FallBack) {
-					calculate = false;
-				}
-				if (action instanceof Card) {
-					Card card = (Card) action;
-					if (card.getType() != CardType.TAKE_OR_DROP_CARROTS) {
-						calculate = false;
-					}
-				}
+	private static Advance getAdvance(Move move) {
+		for (Action action : move.actions) {
+			if (action instanceof Advance) {
+				return (Advance) action;
 			}
-			if (calculate) {
-				int rating = -getMoveRating(move, gamestate_clone, depth - 1, startTime);
-				if (rating != 0) {
-					return rating;
-				}
-			}
-		}
-		return 0;
-	}
-
-	public static Move getWinningMove(ArrayList<Move> possibleMoves, int depth, GameState gameState, long startTime) {
-		Move selectedMove = null;
-		int highestRating = 0;
-		for (Move move : possibleMoves) {
-			if (!timeEnough(startTime)) {
-				break;
-			}
-			boolean calculate = true;
-			for (Action action : move.getActions()) {
-				if (action instanceof Card) {
-					calculate = false;
-				}
-			}
-			if (!calculate) {
-				break;
-			}
-			int rating = getMoveRating(move, gameState, depth, startTime);
-			if (rating > highestRating) {
-				selectedMove = move;
-				highestRating = rating;
-			}
-		}
-		if (highestRating > 0) {
-			return selectedMove;
 		}
 		return null;
-	}*/
+	}
+
+	public static Move getFurthestPos(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
+		List<Move> advanceMoves = new ArrayList<>();
+		int currentEnemyPos = gameState.getOtherPlayer().getFieldIndex();
+		int furthestEnemyPos = GameRuleLogic.calculateMoveableFields(gameState.getOtherPlayer().getCarrots())
+				+ currentEnemyPos;
+
+		for (Move move : possibleMoves) {
+			Advance advance = getAdvance(move);
+			if (advance != null) {
+				int destination = currentPlayer.getFieldIndex() + advance.getDistance();
+				if (gameState.getTypeAt(destination) == FieldType.POSITION_1) {
+					if (destination >= furthestEnemyPos) {
+						advanceMoves.add(move);
+					}
+				} else if (gameState.getTypeAt(destination) == FieldType.POSITION_2) {
+					if (destination < currentEnemyPos) {
+						advanceMoves.add(move);
+					}
+				}
+			}
+		}
+
+		if (advanceMoves.size() > 0) {
+			Collections.sort(advanceMoves, new Comparator<Move>() {
+				@Override
+				public int compare(Move m1, Move m2) {
+					Advance a1 = getAdvance(m1), a2 = getAdvance(m2);
+					return ((Integer) a1.getDistance()).compareTo(a2.getDistance()) * -1;
+				}
+			});
+
+			return advanceMoves.get(0);
+		}
+
+		return null;
+	}
+
+	/*
+	 * public static int getMoveRating(Move move, GameState gamestate, int depth,
+	 * long startTime) { if (!timeEnough(startTime)) { return 0; } if (depth == 0) {
+	 * return 0; } GameState gamestate_clone; try { gamestate_clone =
+	 * gamestate.clone(); } catch (CloneNotSupportedException e1) { // wtf, let's
+	 * just ignore this return 0; } try { move.perform(gamestate_clone); } catch
+	 * (InvalidMoveException e) { // Move is not valid, do not perform, disqualifies
+	 * us. return -depth; } catch (InvalidGameStateException e) { // wtf, let's just
+	 * ignore this but better not perform this move return -depth; } for (Move
+	 * nextMove : gamestate_clone.getPossibleMoves()) { // check if the enemy can
+	 * win for one of the moves that he can do afterwards boolean calculate = true;
+	 * for (Action action : nextMove.getActions()) { if (action instanceof Advance)
+	 * { Advance advance = (Advance) action; if (advance.getDistance() +
+	 * gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS -
+	 * 1) { // enemy can win after our move return -depth; } } if (action instanceof
+	 * FallBack) { calculate = false; } if (action instanceof Card) { Card card =
+	 * (Card) action; if (card.getType() != CardType.TAKE_OR_DROP_CARROTS) {
+	 * calculate = false; } } } if (calculate) { int rating = -getMoveRating(move,
+	 * gamestate_clone, depth - 1, startTime); if (rating != 0) { return rating; } }
+	 * } return 0; }
+	 * 
+	 * public static Move getWinningMove(ArrayList<Move> possibleMoves, int depth,
+	 * GameState gameState, long startTime) { Move selectedMove = null; int
+	 * highestRating = 0; for (Move move : possibleMoves) { if
+	 * (!timeEnough(startTime)) { break; } boolean calculate = true; for (Action
+	 * action : move.getActions()) { if (action instanceof Card) { calculate =
+	 * false; } } if (!calculate) { break; } int rating = getMoveRating(move,
+	 * gameState, depth, startTime); if (rating > highestRating) { selectedMove =
+	 * move; highestRating = rating; } } if (highestRating > 0) { return
+	 * selectedMove; } return null; }
+	 */
 }

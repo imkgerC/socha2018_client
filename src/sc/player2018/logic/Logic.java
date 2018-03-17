@@ -45,6 +45,7 @@ public class Logic implements IGameHandler {
 
 	@Override
 	public void onRequestAction() {
+		int currentIndex = currentPlayer.getFieldIndex();
 		long startTime = System.nanoTime();
 		log.info("Es wurde ein Zug angefordert.");
 		ArrayList<Move> possibleMoves = gameState.getPossibleMoves();
@@ -57,7 +58,7 @@ public class Logic implements IGameHandler {
 			for (Action action : move.actions) {
 				if (action instanceof Advance) {
 					Advance advance = (Advance) action;
-					if (advance.getDistance() + currentPlayer.getFieldIndex() == Constants.NUM_FIELDS - 1) {
+					if (advance.getDistance() + currentIndex == Constants.NUM_FIELDS - 1) {
 						// winning move
 						move.orderActions();
 						sendAction(move);
@@ -74,90 +75,20 @@ public class Logic implements IGameHandler {
 		}
 
 		if (currentPlayer.getSalads() > 0) {
-			/*
-			 * Johannes' strategy for the start: Move past the first salad field but use it
-			 * and waste a turn there (sometimes) Then lose all salads at the second salad
-			 * field.
-			 */
-			if (currentPlayer.getFieldIndex() >= 10) {
-				// if we can eat a salad, we should
-				if (endIfPossible(LogicHelper.getEatSalad(possibleMoves), startTime)) {
+			if (currentIndex < 10) {
+				// before field 10 is early-game
+				if(endIfPossible(EarlyGameLogic.getTurn(gameState),startTime)) {
 					return;
 				}
-				if (currentPlayer.getFieldIndex() >= 22) {
-					// go back, you have salads to eat!
-					if (endIfPossible(LogicHelper.getFallback(possibleMoves), startTime)) {
-						return;
-					}
-				} else {
-					if (!gameState.isOccupied(22)) { // 22 is OUR salad field
-						if (endIfPossible(
-								LogicHelper.getNextByType(FieldType.SALAD, possibleMoves, gameState, currentPlayer),
-								startTime)) {
-							return;
-						}
-						if (endIfPossible(LogicHelper.getNextHareCarrot(possibleMoves, gameState, currentPlayer),
-								startTime)) {
-							return;
-						}
-					} else {
-						if (currentPlayer.getFieldIndex() == 15) {
-							if (endIfPossible(LogicHelper.getNextByType(FieldType.POSITION_2, possibleMoves, gameState,
-									currentPlayer), startTime)) {
-								return;
-							}
-						}
-						if (endIfPossible(LogicHelper.getFallback(possibleMoves), startTime)) {
-							return;
-						}
-						if (endIfPossible(LogicHelper.getNextAdvance(possibleMoves), startTime)) {
-							return;
-						}
-					}
-				}
 			} else {
-				// before field 10
-				if (currentPlayer.getSalads() == 5) {
-					// let's waste some turns in the beginning to lose a salad and wait for the
-					// enemy to move away
-					if (endIfPossible(LogicHelper.getHareEatSalad(possibleMoves, gameState, currentPlayer),
-							startTime)) {
-						return;
-					}
-				} else {
-					// can we move to the next salad field?
-					if (gameState.isOccupied(10)) {
-						// no we can't
-						if (endIfPossible(LogicHelper.getNextAdvance(possibleMoves), startTime)) {
-							return;
-						}
-					} else {
-						// move to the salad field
-						if (endIfPossible(
-								LogicHelper.getNextByType(FieldType.SALAD, possibleMoves, gameState, currentPlayer),
-								startTime)) {
-							return;
-						}
-					}
+				if(endIfPossible(MidGameLogic.getTurn(gameState),startTime)) {
+					return;
 				}
 			}
 		} else {
-			// there are no salads left
-			if (currentPlayer.getFieldIndex() < 47) {
-				if (endIfPossible(LogicHelper.getFurthestPos(possibleMoves, gameState, currentPlayer), startTime)) {
-					return;
-				}
-				if (endIfPossible(LogicHelper.getAdvanceFarAway(possibleMoves), startTime)) {
-					return;
-				}
-			} else {
-				// end-game
-				if (endIfPossible(LogicHelper.getEndStrategyMove(possibleMoves, gameState, currentPlayer), startTime)) {
-					return;
-				}
-				if (endIfPossible(LogicHelper.getSimpleEndMove(possibleMoves, gameState, currentPlayer), startTime)) {
-					return;
-				}
+			// there are no salads left, we are in end-game
+			if (endIfPossible(EndGameLogic.getTurn(gameState), startTime)) {
+				return;
 			}
 		}
 

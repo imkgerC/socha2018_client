@@ -119,7 +119,9 @@ public class EndGameLogic {
 				}
 			}
 			if (!hasCard) {
-				consideredMoves.add(move);
+				if(LogicHelper.getAdvance(move) != null) {
+					consideredMoves.add(move);
+				}
 			}
 		}
 

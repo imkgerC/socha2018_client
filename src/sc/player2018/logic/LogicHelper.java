@@ -140,14 +140,14 @@ public class LogicHelper {
 		return new RatedMove(move, Integer.MIN_VALUE);
 	}
 
-	public static RatedMove getEndRatedMove(Move move, GameState gameState, Player currentPlayer) {
+	public static int getEndMoveRating(Move move, GameState gameState, Player currentPlayer) {
 		// method is used if nothing else could be found or an emergency emerges
 		for (Action action : move.actions) {
 			if (action instanceof Advance) {
 				Advance advance = (Advance) action;
 				if (advance.getDistance() + currentPlayer.getFieldIndex() == Constants.NUM_FIELDS - 1) {
 					// winning move
-					return new RatedMove(move, Integer.MAX_VALUE);
+					return Integer.MAX_VALUE;
 
 				} else {
 					// complicated formula for calculating some semi-random bullcrap
@@ -160,10 +160,10 @@ public class LogicHelper {
 					if (carrotsLeftAfter < 10 && carrotsLeftAfter > 0) {
 						if (gameState
 								.getTypeAt(currentPlayer.getFieldIndex() + advance.getDistance()) == FieldType.CARROT) {
-							return new RatedMove(move, 10);
+							return 10;
 						}
 					}
-					return new RatedMove(move, advance.getDistance());
+					return advance.getDistance() - 2;
 				}
 			} else if (action instanceof ExchangeCarrots) {
 				ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
@@ -171,20 +171,20 @@ public class LogicHelper {
 						|| (currentPlayer.getFieldIndex() > 56 && currentPlayer.getCarrots() <= 10))
 						&& exchangeCarrots.getValue() == 10) {
 					// do not take carrots in end game
-					return new RatedMove(move, 1);
+					return 2;
 				} else if (exchangeCarrots.getValue() == -10 && currentPlayer.getCarrots() > 30) {
 					// only remove carrots if at end
-					return new RatedMove(move, 1);
+					return 1;
 				}
 			} else if (action instanceof FallBack) {
 				if (currentPlayer.getCarrots() < 10 && currentPlayer.getFieldIndex()
 						- gameState.getPreviousFieldByType(FieldType.HEDGEHOG, currentPlayer.getFieldIndex()) < 5) {
 					// go back scarcely
-					return new RatedMove(move, 1);
+					return -1;
 				}
 			}
 		}
-		return new RatedMove(move, Integer.MIN_VALUE);
+		return Integer.MIN_VALUE;
 	}
 
 	public static Move getSimpleMove(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
@@ -207,22 +207,14 @@ public class LogicHelper {
 	}
 
 	public static Move getSimpleEndMove(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
-		ArrayList<RatedMove> ratedMoves = new ArrayList<>();
+		Move selectedMove = new Move();
+		int highestRating = -1;
 		for (Move move : possibleMoves) {
-			ratedMoves.add(LogicHelper.getEndRatedMove(move, gameState, currentPlayer));
-		}
-		RatedMove selectedMove = new RatedMove();
-		if (ratedMoves.size() < 1) {
-			selectedMove = new RatedMove(possibleMoves.get(rand.nextInt(possibleMoves.size())));
-		} else {
-			for (RatedMove move : ratedMoves) {
-				if (move.getRating() > selectedMove.getRating()) {
-					selectedMove = move;
-				}
+			if (LogicHelper.getEndMoveRating(move, gameState, currentPlayer) > highestRating) {
+				selectedMove = move;
 			}
 		}
-
-		return selectedMove.getMove();
+		return selectedMove;
 	}
 
 	public static Move getNextAdvance(ArrayList<Move> possibleMoves) {
@@ -347,6 +339,41 @@ public class LogicHelper {
 		return null;
 	}
 
+	public static Move getNextHareCarrot(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
+		List<Move> hareMoves = new ArrayList<>();
+
+		// select all moves that play out a salad card
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Card) {
+					Card card = (Card) action;
+					if (card.getType() == CardType.TAKE_OR_DROP_CARROTS) {
+						if (card.getValue() == 20) {
+							hareMoves.add(move);
+						}
+
+					}
+				}
+			}
+		}
+		// select the nearest hare field
+		int nextHareUnoccupied = LogicHelper.getNextUnoccupied(FieldType.HARE, currentPlayer.getFieldIndex(), gameState,
+				currentPlayer);
+		for (Move move : hareMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					// check if this field is the nearest
+					if (advance.getDistance() + currentPlayer.getFieldIndex() == nextHareUnoccupied) {
+						return move;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public static Move getNextByType(FieldType fieldType, ArrayList<Move> possibleMoves, GameState gameState,
 			Player currentPlayer) {
 		int nextFieldOfType = LogicHelper.getNextUnoccupied(fieldType, currentPlayer.getFieldIndex(), gameState,
@@ -363,6 +390,28 @@ public class LogicHelper {
 		}
 
 		return null;
+	}
+
+	public static Move getLastByType(FieldType fieldType, ArrayList<Move> possibleMoves, GameState gameState,
+			Player currentPlayer) {
+		Move selectedMove = null;
+		int furthestDistance = -1;
+		for (Move move : possibleMoves) {
+			for (Action action : move.actions) {
+				if (action instanceof Advance) {
+					Advance advance = (Advance) action;
+					int destination = advance.getDistance() + currentPlayer.getFieldIndex();
+					if (gameState.getTypeAt(destination) == fieldType) {
+						if (destination > furthestDistance) {
+							furthestDistance = destination;
+							selectedMove = move;
+						}
+					}
+				}
+			}
+		}
+
+		return selectedMove;
 	}
 
 	private static Advance getAdvance(Move move) {
@@ -411,35 +460,92 @@ public class LogicHelper {
 		return null;
 	}
 
-	/*
-	 * public static int getMoveRating(Move move, GameState gamestate, int depth,
-	 * long startTime) { if (!timeEnough(startTime)) { return 0; } if (depth == 0) {
-	 * return 0; } GameState gamestate_clone; try { gamestate_clone =
-	 * gamestate.clone(); } catch (CloneNotSupportedException e1) { // wtf, let's
-	 * just ignore this return 0; } try { move.perform(gamestate_clone); } catch
-	 * (InvalidMoveException e) { // Move is not valid, do not perform, disqualifies
-	 * us. return -depth; } catch (InvalidGameStateException e) { // wtf, let's just
-	 * ignore this but better not perform this move return -depth; } for (Move
-	 * nextMove : gamestate_clone.getPossibleMoves()) { // check if the enemy can
-	 * win for one of the moves that he can do afterwards boolean calculate = true;
-	 * for (Action action : nextMove.getActions()) { if (action instanceof Advance)
-	 * { Advance advance = (Advance) action; if (advance.getDistance() +
-	 * gamestate_clone.getCurrentPlayer().getFieldIndex() == Constants.NUM_FIELDS -
-	 * 1) { // enemy can win after our move return -depth; } } if (action instanceof
-	 * FallBack) { calculate = false; } if (action instanceof Card) { Card card =
-	 * (Card) action; if (card.getType() != CardType.TAKE_OR_DROP_CARROTS) {
-	 * calculate = false; } } } if (calculate) { int rating = -getMoveRating(move,
-	 * gamestate_clone, depth - 1, startTime); if (rating != 0) { return rating; } }
-	 * } return 0; }
-	 * 
-	 * public static Move getWinningMove(ArrayList<Move> possibleMoves, int depth,
-	 * GameState gameState, long startTime) { Move selectedMove = null; int
-	 * highestRating = 0; for (Move move : possibleMoves) { if
-	 * (!timeEnough(startTime)) { break; } boolean calculate = true; for (Action
-	 * action : move.getActions()) { if (action instanceof Card) { calculate =
-	 * false; } } if (!calculate) { break; } int rating = getMoveRating(move,
-	 * gameState, depth, startTime); if (rating > highestRating) { selectedMove =
-	 * move; highestRating = rating; } } if (highestRating > 0) { return
-	 * selectedMove; } return null; }
-	 */
+	public static Move getEndStrategyMove(ArrayList<Move> possibleMoves, GameState gameState, Player currentPlayer) {
+		int currentPos = currentPlayer.getFieldIndex();
+		if (gameState.getTypeAt(currentPos) != FieldType.CARROT) {
+			return LogicHelper.getLastByType(FieldType.CARROT, possibleMoves, gameState, currentPlayer);
+		}
+		// we can't go into the goal or we would have already, let's figure out why
+		if (GameRuleLogic.calculateMoveableFields(currentPlayer.getCarrots()) >= (Constants.NUM_FIELDS - 1)
+				- currentPos) {
+			// we have enough carrots for moving to the desired field, so it must be that we
+			// have too many carrots
+			for (Move move : possibleMoves) {
+				for (Action action : move.actions) {
+					if (action instanceof ExchangeCarrots) {
+						ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
+						if (exchangeCarrots.getValue() == -10) {
+							return move;
+						}
+					}
+				}
+			}
+		} else {
+			// we are short on carrots
+			int fieldsFromGoal = Constants.NUM_FIELDS - 1 - currentPlayer.getFieldIndex();
+			int carrotsNeeded = GameRuleLogic.calculateCarrots(fieldsFromGoal);
+			int turnsOfSitting = (int) Math.ceil(carrotsNeeded / 10);
+			int turnsByMoving = minimumNumberOfTurns(fieldsFromGoal, currentPlayer.getCarrots());
+			if (turnsByMoving > turnsOfSitting) {
+				for (Move move : possibleMoves) {
+					for (Action action : move.actions) {
+						if (action instanceof ExchangeCarrots) {
+							ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
+							if (exchangeCarrots.getValue() == +10) {
+								return move;
+							}
+						}
+					}
+				}
+			} else {
+				int bestDistance = (int) Math.floor(fieldsFromGoal / turnsByMoving);
+				List<Move> advanceMoves = new ArrayList<>();
+				for (Move move : possibleMoves) {
+					Advance advance = getAdvance(move);
+					if (advance != null) {
+						int destination = advance.getDistance() + currentPlayer.getFieldIndex();
+						if (gameState.getTypeAt(destination) == FieldType.CARROT) {
+							advanceMoves.add(move);
+						}
+					}
+				}
+
+				if (advanceMoves.size() > 0) {
+					Collections.sort(advanceMoves, new Comparator<Move>() {
+						@Override
+						public int compare(Move m1, Move m2) {
+							Advance a1 = getAdvance(m1), a2 = getAdvance(m2);
+							int fromPerfect1 = Math.abs(a1.getDistance() - bestDistance);
+							int fromPerfect2 = Math.abs(a2.getDistance() - bestDistance);
+							return ((Integer) fromPerfect1).compareTo(fromPerfect2) * -1;
+						}
+					});
+
+					return advanceMoves.get(0);
+				}
+			}
+		}
+		return null;
+	}
+
+	private static int minimumNumberOfTurns(int fieldsAway, int carrots) {
+		int turns = 1;
+		for (int i = 0; i < 100; i++) {
+			int needed = carrotsForReaching(fieldsAway, turns);
+			if (needed > carrots) {
+				turns++;
+			} else {
+				return turns;
+			}
+		}
+		return Integer.MAX_VALUE;
+	}
+
+	private static int carrotsForReaching(int fieldsAway, int turns) {
+		double y = turns;
+		double n = fieldsAway;
+		double result = (y / 2) + ((Math.pow(y, 2.0)) / (2 * n));
+
+		return (int) result;
+	}
 }

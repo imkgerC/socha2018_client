@@ -96,6 +96,10 @@ public class Logic implements IGameHandler {
 								startTime)) {
 							return;
 						}
+						if (endIfPossible(LogicHelper.getNextHareCarrot(possibleMoves, gameState, currentPlayer),
+								startTime)) {
+							return;
+						}
 					} else {
 						if (currentPlayer.getFieldIndex() == 15) {
 							if (endIfPossible(LogicHelper.getNextByType(FieldType.POSITION_2, possibleMoves, gameState,
@@ -148,6 +152,9 @@ public class Logic implements IGameHandler {
 				}
 			} else {
 				// end-game
+				if (endIfPossible(LogicHelper.getEndStrategyMove(possibleMoves, gameState, currentPlayer), startTime)) {
+					return;
+				}
 				if (endIfPossible(LogicHelper.getSimpleEndMove(possibleMoves, gameState, currentPlayer), startTime)) {
 					return;
 				}
@@ -178,10 +185,10 @@ public class Logic implements IGameHandler {
 	@Override
 	public void sendAction(Move move) {
 		if (move.actions.size() < 1) {
-			log.warn("EMERGENCY MOVE");
+			log.error("EMERGENCY MOVE");
+			log.error("Had {} selected", move.toString());
 			move = gameState.getPossibleMoves().get(rand.nextInt(gameState.getPossibleMoves().size()));
 		}
 		client.sendMove(move);
 	}
-
 }

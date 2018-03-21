@@ -3,9 +3,7 @@ package sc.player2018.logic;
 import java.security.SecureRandom;
 import sc.player2018.RatedMove;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -49,52 +47,10 @@ public class LogicHelper {
 		return 0;
 	}
 
-	public static boolean timeEnough(long startTime) {
+	public static boolean enoughTimeLeft(long startTime) {
 		// we shouldn't send too late, as late garbage collection or another issue would
 		// disqualify us
 		return milliTimeLeft(startTime) > 200;
-	}
-
-	private static int getNextUnoccupied(FieldType fieldType, int index, int depth, GameState gameState) {
-		// recursive function as fields can be occupied or the gameState can bug around
-		int temp = gameState.getNextFieldByType(fieldType, index);
-		if (temp < 0 || depth >= 20) {
-			// preventing stack overflow
-			return -1;
-		}
-		if (gameState.isOccupied(temp)) {
-			// return next field after this one
-			return getNextUnoccupied(fieldType, temp, depth + 1, gameState);
-		}
-		return temp;
-	}
-
-	public static int getNextUnoccupied(FieldType fieldType, int index, GameState gameState) {
-		return getNextUnoccupied(fieldType, index, 0, gameState);
-	}
-
-	public static Move getFallback(ArrayList<Move> possibleMoves) {
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof FallBack) {
-					// there can only be one field we can FallBack onto, so send this
-					return move;
-				}
-			}
-		}
-		return null;
-	}
-
-	public static Move getEatSalad(ArrayList<Move> possibleMoves) {
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof EatSalad) {
-					// there can only be one move to eat a salad
-					return move;
-				}
-			}
-		}
-		return null;
 	}
 
 	public static RatedMove getRatedMove(Move move, GameState gameState, Player currentPlayer) {
@@ -170,126 +126,6 @@ public class LogicHelper {
 		}
 
 		return selectedMove.getMove();
-	}
-
-	public static Move getNextAdvance(ArrayList<Move> possibleMoves) {
-		List<Move> advanceMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			Advance advance = getAdvance(move);
-			if (advance != null) {
-				advanceMoves.add(move);
-			}
-		}
-
-		if (advanceMoves.size() > 0) {
-			Collections.sort(advanceMoves, LogicHelper.lowestDistanceComparator);
-			return advanceMoves.get(0);
-		}
-		return null;
-	}
-
-	public static Move getLastAdvance(ArrayList<Move> possibleMoves) {
-		List<Move> advanceMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			Advance advance = getAdvance(move);
-			if (advance != null) {
-				advanceMoves.add(move);
-			}
-		}
-
-		if (advanceMoves.size() > 0) {
-			Collections.sort(advanceMoves, LogicHelper.highestDistanceComparator);
-			return advanceMoves.get(0);
-		}
-		return null;
-	}
-
-	public static Move getHareEatSalad(ArrayList<Move> possibleMoves, GameState gameState, int currentIndex) {
-		ArrayList<Move> saladMoves = new ArrayList<>();
-
-		// select all moves that play out a salad card
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof Card) {
-					Card card = (Card) action;
-					if (card.getType() == CardType.EAT_SALAD) {
-						saladMoves.add(move);
-					}
-				}
-			}
-		}
-		if (saladMoves.size() > 0) {
-			Collections.sort(saladMoves, lowestDistanceComparator);
-			return saladMoves.get(0);
-		}
-
-		return null;
-	}
-
-	public static Move getNextHareCarrot(ArrayList<Move> possibleMoves, GameState gameState, int currentIndex) {
-		ArrayList<Move> hareMoves = new ArrayList<>();
-
-		// select all moves that play out a carrot card
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof Card) {
-					Card card = (Card) action;
-					if (card.getType() == CardType.TAKE_OR_DROP_CARROTS) {
-						if(card.getValue() == 20) {
-							hareMoves.add(move);
-						}
-					}
-				}
-			}
-		}
-		if (hareMoves.size() > 0) {
-			Collections.sort(hareMoves, lowestDistanceComparator);
-			return hareMoves.get(0);
-		}
-
-		return null;
-	}
-
-	public static Move getNextByType(FieldType fieldType, ArrayList<Move> possibleMoves, GameState gameState,
-			int currentIndex) {
-		List<Move> consideredMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			Advance advance = getAdvance(move);
-			if (advance != null) {
-				int destination = currentIndex + advance.getDistance();
-				if (gameState.getTypeAt(destination) == fieldType) {
-					consideredMoves.add(move);
-				}
-			}
-		}
-
-		if (consideredMoves.size() > 0) {
-			Collections.sort(consideredMoves, lowestDistanceComparator);
-			return consideredMoves.get(0);
-		}
-
-		return null;
-	}
-
-	public static Move getLastByType(FieldType fieldType, ArrayList<Move> possibleMoves, GameState gameState,
-			int currentIndex) {
-		List<Move> consideredMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			Advance advance = getAdvance(move);
-			if (advance != null) {
-				int destination = currentIndex + advance.getDistance();
-				if (gameState.getTypeAt(destination) == fieldType) {
-					consideredMoves.add(move);
-				}
-			}
-		}
-
-		if (consideredMoves.size() > 0) {
-			Collections.sort(consideredMoves, highestDistanceComparator);
-			return consideredMoves.get(0);
-		}
-
-		return null;
 	}
 
 	public static Advance getAdvance(Move move) {

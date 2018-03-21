@@ -1,6 +1,8 @@
 package sc.player2018.logic;
 
 import java.util.ArrayList;
+
+import sc.plugin2018.CardType;
 import sc.plugin2018.FieldType;
 import sc.plugin2018.GameState;
 import sc.plugin2018.Move;
@@ -20,39 +22,40 @@ public class MidGameLogic {
 		Player currentPlayer = gameState.getCurrentPlayer();
 		int currentIndex = currentPlayer.getFieldIndex();
 		ArrayList<Move> possibleMoves = gameState.getPossibleMoves();
+		MoveList baseList = new MoveList(possibleMoves,gameState);
 		// if we can eat a salad, we should
-		Move returnMove = LogicHelper.getEatSalad(possibleMoves);
+		Move returnMove = baseList.getSaladEat();
 		if(returnMove != null) {
 			return returnMove;
 		}
 		if (currentIndex >= 22) {
 			// go back, you have salads to eat!
-			returnMove = LogicHelper.getFallback(possibleMoves);
+			returnMove = baseList.getFallback();
 			if(returnMove != null) {
 				return returnMove;
 			}
 		} else {
 			if (!gameState.isOccupied(SALAD_FIELD)) {
-				returnMove = LogicHelper.getNextByType(FieldType.SALAD, possibleMoves, gameState, currentIndex);
+				returnMove = baseList.select(FieldType.SALAD).getNearest();
 				if(returnMove != null) {
 					return returnMove;
 				}
-				returnMove = LogicHelper.getNextHareCarrot(possibleMoves, gameState, currentIndex);
+				returnMove = baseList.select(CardType.EAT_SALAD).getNearest();
 				if(returnMove != null) {
 					return returnMove;
 				}
 			} else {
 				if (currentIndex == FALLBACK_FIELD) {
-					returnMove = LogicHelper.getNextByType(FieldType.POSITION_2, possibleMoves, gameState, currentIndex);
+					returnMove = baseList.select(FieldType.POSITION_2).getNearest();
 					if(returnMove != null) {
 						return returnMove;
 					}
 				}
-				returnMove = LogicHelper.getFallback(possibleMoves);
+				returnMove = baseList.getFallback();
 				if(returnMove != null) {
 					return returnMove;
 				}
-				returnMove = LogicHelper.getNextAdvance(possibleMoves);
+				returnMove = baseList.getNearest();
 				if(returnMove != null) {
 					return returnMove;
 				}

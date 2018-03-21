@@ -2,7 +2,6 @@ package sc.player2018.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import sc.plugin2018.Action;
@@ -23,6 +22,7 @@ public class EndGameLogic {
 		Player currentPlayer = gameState.getCurrentPlayer();
 		int currentIndex = currentPlayer.getFieldIndex();
 		int carrots = currentPlayer.getCarrots();
+		MoveList baseList = new MoveList(possibleMoves, gameState);
 
 		if (currentIndex < 47) {
 			Move returnMove = getFurthestPosMove(possibleMoves, gameState, currentIndex);
@@ -35,7 +35,7 @@ public class EndGameLogic {
 			}
 		} else {
 			if (gameState.getTypeAt(currentIndex) != FieldType.CARROT) {
-				Move returnMove = LogicHelper.getLastByType(FieldType.CARROT, possibleMoves, gameState, currentIndex);
+				Move returnMove = baseList.select(FieldType.CARROT).getFurthest();
 				if (returnMove != null) {
 					return returnMove;
 				}
@@ -46,7 +46,7 @@ public class EndGameLogic {
 				if (carrots >= carrotsNeeded) {
 					// we have enough carrots for moving to the goal, so we are having too many
 					// carrots
-					Move returnMove = getMinusCarrots(possibleMoves);
+					Move returnMove = baseList.getCarrotExchange(-10);
 					if (returnMove != null) {
 						return returnMove;
 					}
@@ -58,13 +58,13 @@ public class EndGameLogic {
 					if (turnsByMoving < turnsBySitting) {
 						// we should move
 						int bestDistance = (int) Math.floor(fieldsFromGoal / turnsByMoving);
-						Move returnMove = getCarrotAdvanceNear(gameState, currentIndex, possibleMoves, bestDistance);
+						Move returnMove = baseList.select(FieldType.CARROT).getNearestTo(bestDistance);
 						if (returnMove != null) {
 							return returnMove;
 						}
 					} else {
 						// we should sit
-						Move returnMove = getPlusCarrots(possibleMoves);
+						Move returnMove = baseList.getCarrotExchange(10);
 						if (returnMove != null) {
 							return returnMove;
 						}
@@ -119,7 +119,7 @@ public class EndGameLogic {
 				}
 			}
 			if (!hasCard) {
-				if(LogicHelper.getAdvance(move) != null) {
+				if (LogicHelper.getAdvance(move) != null) {
 					consideredMoves.add(move);
 				}
 			}
@@ -130,63 +130,6 @@ public class EndGameLogic {
 			return consideredMoves.get(2);
 		}
 
-		return null;
-	}
-
-	private static Move getMinusCarrots(ArrayList<Move> possibleMoves) {
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof ExchangeCarrots) {
-					ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
-					if (exchangeCarrots.getValue() == -10) {
-						return move;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	private static Move getPlusCarrots(ArrayList<Move> possibleMoves) {
-		for (Move move : possibleMoves) {
-			for (Action action : move.actions) {
-				if (action instanceof ExchangeCarrots) {
-					ExchangeCarrots exchangeCarrots = (ExchangeCarrots) action;
-					if (exchangeCarrots.getValue() == 10) {
-						return move;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	private static Move getCarrotAdvanceNear(GameState gameState, int currentIndex, ArrayList<Move> possibleMoves,
-			int distance) {
-		List<Move> advanceMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			Advance advance = LogicHelper.getAdvance(move);
-			if (advance != null) {
-				int destination = advance.getDistance() + currentIndex;
-				if (gameState.getTypeAt(destination) == FieldType.CARROT) {
-					advanceMoves.add(move);
-				}
-			}
-		}
-
-		if (advanceMoves.size() > 0) {
-			Collections.sort(advanceMoves, new Comparator<Move>() {
-				@Override
-				public int compare(Move m1, Move m2) {
-					Advance a1 = LogicHelper.getAdvance(m1), a2 = LogicHelper.getAdvance(m2);
-					int fromPerfect1 = Math.abs(a1.getDistance() - distance);
-					int fromPerfect2 = Math.abs(a2.getDistance() - distance);
-					return ((Integer) fromPerfect1).compareTo(fromPerfect2);
-				}
-			});
-
-			return advanceMoves.get(0);
-		}
 		return null;
 	}
 

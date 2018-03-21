@@ -69,7 +69,7 @@ public class Logic implements IGameHandler {
 			}
 		}
 		if (gameState.getRound() == Constants.ROUND_LIMIT - 2) {
-			if (endIfPossible(LogicHelper.getLastAdvance(possibleMoves), startTime)) {
+			if (endIfPossible(new MoveList(possibleMoves,gameState).getFurthest(), startTime)) {
 				return;
 			}
 		}

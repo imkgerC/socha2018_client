@@ -10,7 +10,9 @@ import sc.plugin2018.Action;
 import sc.plugin2018.Advance;
 import sc.plugin2018.Card;
 import sc.plugin2018.CardType;
+import sc.plugin2018.EatSalad;
 import sc.plugin2018.ExchangeCarrots;
+import sc.plugin2018.FallBack;
 import sc.plugin2018.FieldType;
 import sc.plugin2018.GameState;
 import sc.plugin2018.Move;
@@ -75,18 +77,27 @@ public class MoveList {
 	}
 
 	public Move getFurthest() {
-		Collections.sort(this.moves, getFurthestComparator());
-		return this.moves.get(0);
+		if (this.moves.size() > 0) {
+			Collections.sort(this.moves, getFurthestComparator());
+			return this.moves.get(0);
+		}
+		return null;
 	}
 
 	public Move getNearest() {
-		Collections.sort(this.moves, getNearestComparator());
-		return this.moves.get(0);
+		if (this.moves.size() > 0) {
+			Collections.sort(this.moves, getNearestComparator());
+			return this.moves.get(0);
+		}
+		return null;
 	}
 
 	public Move getNearestTo(int wantedDistance) {
-		Collections.sort(this.moves, getNearestToComparator(wantedDistance));
-		return this.moves.get(0);
+		if (this.moves.size() > 0) {
+			Collections.sort(this.moves, getNearestToComparator(wantedDistance));
+			return this.moves.get(0);
+		}
+		return null;
 	}
 
 	public Move getCarrotExchange(int value) {
@@ -97,6 +108,28 @@ public class MoveList {
 					if (exchangeCarrots.getValue() == value) {
 						return move;
 					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public Move getSaladEat() {
+		for (Move move : this.moves) {
+			for (Action action : move.actions) {
+				if (action instanceof EatSalad) {
+					return move;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Move getFallback() {
+		for (Move move : this.moves) {
+			for (Action action : move.actions) {
+				if (action instanceof FallBack) {
+					return move;
 				}
 			}
 		}

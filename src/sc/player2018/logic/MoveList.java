@@ -34,11 +34,6 @@ public class MoveList {
 		return new MoveList(merge, m1.gameState);
 	}
 
-	public void add(MoveList toAdd) {
-		this.moves.addAll(toAdd.moves);
-		this.moves = this.moves.stream().distinct().collect(Collectors.toList());
-	}
-
 	public MoveList select(FieldType fieldType) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
@@ -93,7 +88,7 @@ public class MoveList {
 		Collections.sort(this.moves, getNearestToComparator(wantedDistance));
 		return this.moves.get(0);
 	}
-	
+
 	public Move getCarrotExchange(int value) {
 		for (Move move : this.moves) {
 			for (Action action : move.actions) {

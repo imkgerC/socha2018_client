@@ -35,7 +35,9 @@ public class EndGameLogic {
 			}
 		} else {
 			if (gameState.getTypeAt(currentIndex) != FieldType.CARROT) {
-				Move returnMove = LogicHelper.getLastByType(FieldType.CARROT, possibleMoves, gameState, currentIndex);
+				// Move returnMove = LogicHelper.getLastByType(FieldType.CARROT, possibleMoves,
+				// gameState, currentIndex);
+				Move returnMove = new MoveList(possibleMoves, gameState).select(FieldType.CARROT).getFurthest();
 				if (returnMove != null) {
 					return returnMove;
 				}
@@ -46,7 +48,8 @@ public class EndGameLogic {
 				if (carrots >= carrotsNeeded) {
 					// we have enough carrots for moving to the goal, so we are having too many
 					// carrots
-					Move returnMove = getMinusCarrots(possibleMoves);
+					// Move returnMove = getMinusCarrots(possibleMoves);
+					Move returnMove = new MoveList(possibleMoves, gameState).getCarrotExchange(-10);
 					if (returnMove != null) {
 						return returnMove;
 					}
@@ -58,13 +61,17 @@ public class EndGameLogic {
 					if (turnsByMoving < turnsBySitting) {
 						// we should move
 						int bestDistance = (int) Math.floor(fieldsFromGoal / turnsByMoving);
-						Move returnMove = getCarrotAdvanceNear(gameState, currentIndex, possibleMoves, bestDistance);
+						// Move returnMove = getCarrotAdvanceNear(gameState, currentIndex,
+						// possibleMoves, bestDistance);
+						Move returnMove = new MoveList(possibleMoves, gameState).select(FieldType.CARROT)
+								.getNearestTo(bestDistance);
 						if (returnMove != null) {
 							return returnMove;
 						}
 					} else {
 						// we should sit
-						Move returnMove = getPlusCarrots(possibleMoves);
+						//Move returnMove = getPlusCarrots(possibleMoves);
+						Move returnMove = new MoveList(possibleMoves,gameState).getCarrotExchange(10);
 						if (returnMove != null) {
 							return returnMove;
 						}
@@ -119,7 +126,7 @@ public class EndGameLogic {
 				}
 			}
 			if (!hasCard) {
-				if(LogicHelper.getAdvance(move) != null) {
+				if (LogicHelper.getAdvance(move) != null) {
 					consideredMoves.add(move);
 				}
 			}

@@ -6,7 +6,7 @@ import java.util.List;
 
 import sc.plugin2018.Action;
 import sc.plugin2018.Advance;
-import sc.plugin2018.Card;
+import sc.plugin2018.CardType;
 import sc.plugin2018.ExchangeCarrots;
 import sc.plugin2018.FallBack;
 import sc.plugin2018.FieldType;
@@ -24,12 +24,12 @@ public class EndGameLogic {
 		int carrots = currentPlayer.getCarrots();
 		MoveList baseList = new MoveList(possibleMoves, gameState);
 
-		if (currentIndex < 47) {
+		if (currentIndex < 42) {
 			Move returnMove = getFurthestPosMove(possibleMoves, gameState, currentIndex);
 			if (returnMove != null) {
 				return returnMove;
 			}
-			returnMove = getFarAdvance(possibleMoves);
+			returnMove = baseList.deselect(CardType.HURRY_AHEAD).deselect(CardType.FALL_BACK).getFurthest(2);
 			if (returnMove != null) {
 				return returnMove;
 			}
@@ -103,31 +103,6 @@ public class EndGameLogic {
 		if (advanceMoves.size() > 0) {
 			Collections.sort(advanceMoves, LogicHelper.highestDistanceComparator);
 			return advanceMoves.get(0);
-		}
-
-		return null;
-	}
-
-	private static Move getFarAdvance(ArrayList<Move> possibleMoves) {
-		// taking the third most far away field should be okay for now
-		List<Move> consideredMoves = new ArrayList<>();
-		for (Move move : possibleMoves) {
-			boolean hasCard = false;
-			for (Action action : move.actions) {
-				if (action instanceof Card) {
-					hasCard = true;
-				}
-			}
-			if (!hasCard) {
-				if (LogicHelper.getAdvance(move) != null) {
-					consideredMoves.add(move);
-				}
-			}
-		}
-
-		if (consideredMoves.size() > 0) {
-			Collections.sort(consideredMoves, LogicHelper.highestDistanceComparator);
-			return consideredMoves.get(2);
 		}
 
 		return null;

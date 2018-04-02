@@ -136,7 +136,7 @@ public class LogicHelper {
 		}
 		return null;
 	}
-
+	
 	public static int minimumNumberOfTurns(int fieldsAway, int carrots) {
 		int turns = 1;
 		for (int i = 0; i < 100; i++) {

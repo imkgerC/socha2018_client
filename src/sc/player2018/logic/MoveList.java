@@ -99,7 +99,7 @@ public class MoveList {
 		for (Move move : this.moves) {
 			Card card = getCard(move);
 			if (card != null) {
-				if (card.getType() != cardType || card.getValue() == value) {
+				if (card.getType() != cardType || card.getValue() != value) {
 					selectedMoves.add(move);
 				}
 			} else {

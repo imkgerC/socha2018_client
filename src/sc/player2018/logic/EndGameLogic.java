@@ -35,7 +35,8 @@ public class EndGameLogic {
 			}
 		} else {
 			if (gameState.getTypeAt(currentIndex) != FieldType.CARROT) {
-				Move returnMove = baseList.select(FieldType.CARROT).getFurthest();
+				Move returnMove = baseList.select(FieldType.CARROT).deselect(CardType.HURRY_AHEAD)
+						.deselect(CardType.FALL_BACK).getFurthest();
 				if (returnMove != null) {
 					return returnMove;
 				}
@@ -57,8 +58,9 @@ public class EndGameLogic {
 					int turnsByMoving = LogicHelper.minimumNumberOfTurns(fieldsFromGoal, carrots);
 					if (turnsByMoving < turnsBySitting) {
 						// we should move
-						int bestDistance = (int) Math.floor(fieldsFromGoal / turnsByMoving);
-						Move returnMove = baseList.select(FieldType.CARROT).getNearestTo(bestDistance);
+						int bestDistance = (int) fieldsFromGoal / turnsByMoving;
+						Move returnMove = baseList.select(FieldType.CARROT).deselect(CardType.HURRY_AHEAD)
+								.deselect(CardType.FALL_BACK).getNearestTo(bestDistance);
 						if (returnMove != null) {
 							return returnMove;
 						}

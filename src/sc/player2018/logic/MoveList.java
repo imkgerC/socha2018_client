@@ -39,7 +39,7 @@ public class MoveList {
 	public MoveList deselect(FieldType fieldType) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Advance advance = getAdvance(move);
+			Advance advance = LogicHelper.getAdvance(move);
 			if (advance != null) {
 				int destination = this.currentIndex + advance.getDistance();
 				if (this.gameState.getTypeAt(destination) != fieldType) {
@@ -55,7 +55,7 @@ public class MoveList {
 	public MoveList select(FieldType fieldType) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Advance advance = getAdvance(move);
+			Advance advance = LogicHelper.getAdvance(move);
 			if (advance != null) {
 				int destination = this.currentIndex + advance.getDistance();
 				if (this.gameState.getTypeAt(destination) == fieldType) {
@@ -69,7 +69,7 @@ public class MoveList {
 	public MoveList deselect(CardType cardType) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Card card = getCard(move);
+			Card card = LogicHelper.getCard(move);
 			if (card != null) {
 				if (card.getType() != cardType) {
 					selectedMoves.add(move);
@@ -84,7 +84,7 @@ public class MoveList {
 	public MoveList select(CardType cardType) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Card card = getCard(move);
+			Card card = LogicHelper.getCard(move);
 			if (card != null) {
 				if (card.getType() == cardType) {
 					selectedMoves.add(move);
@@ -97,7 +97,7 @@ public class MoveList {
 	public MoveList deselect(CardType cardType, int value) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Card card = getCard(move);
+			Card card = LogicHelper.getCard(move);
 			if (card != null) {
 				if (card.getType() != cardType || card.getValue() != value) {
 					selectedMoves.add(move);
@@ -112,7 +112,7 @@ public class MoveList {
 	public MoveList select(CardType cardType, int value) {
 		List<Move> selectedMoves = new ArrayList<Move>();
 		for (Move move : this.moves) {
-			Card card = getCard(move);
+			Card card = LogicHelper.getCard(move);
 			if (card != null) {
 				if (card.getType() == cardType && card.getValue() == value) {
 					selectedMoves.add(move);
@@ -194,28 +194,10 @@ public class MoveList {
 		return null;
 	}
 
-	private static Card getCard(Move move) {
-		for (Action action : move.actions) {
-			if (action instanceof Card) {
-				return (Card) action;
-			}
-		}
-		return null;
-	}
-
-	private static Advance getAdvance(Move move) {
-		for (Action action : move.actions) {
-			if (action instanceof Advance) {
-				return (Advance) action;
-			}
-		}
-		return null;
-	}
-
 	private static Comparator<Move> nearestComparator = new Comparator<Move>() {
 		@Override
 		public int compare(Move m1, Move m2) {
-			Advance a1 = getAdvance(m1), a2 = getAdvance(m2);
+			Advance a1 = LogicHelper.getAdvance(m1), a2 = LogicHelper.getAdvance(m2);
 			int distance1 = Integer.MAX_VALUE, distance2 = Integer.MAX_VALUE;
 			if (a1 != null) {
 				distance1 = a1.getDistance();
@@ -229,7 +211,7 @@ public class MoveList {
 	private static Comparator<Move> furthestComparator = new Comparator<Move>() {
 		@Override
 		public int compare(Move m1, Move m2) {
-			Advance a1 = getAdvance(m1), a2 = getAdvance(m2);
+			Advance a1 = LogicHelper.getAdvance(m1), a2 = LogicHelper.getAdvance(m2);
 			int distance1 = Integer.MIN_VALUE, distance2 = Integer.MIN_VALUE;
 			if (a1 != null) {
 				distance1 = a1.getDistance();
@@ -253,7 +235,7 @@ public class MoveList {
 		return new Comparator<Move>() {
 			@Override
 			public int compare(Move m1, Move m2) {
-				Advance a1 = getAdvance(m1), a2 = getAdvance(m2);
+				Advance a1 = LogicHelper.getAdvance(m1), a2 = LogicHelper.getAdvance(m2);
 				int distanceTo1 = Integer.MAX_VALUE, distanceTo2 = Integer.MAX_VALUE;
 				if (a1 != null) {
 					distanceTo1 = Math.abs(a1.getDistance() - wantedDistance);
